@@ -47,7 +47,7 @@ class VGGFeatureExtractor(FeatureExtractor):
         for param in self.vgg19.parameters():
             param.requires_grad = False
         if content_layers is None:
-            content_layers = [22]
+            content_layers = [31]
         if style_layers is None:
             style_layers = [1, 6, 11, 20, 29]
         self.content_layers = content_layers
@@ -83,6 +83,8 @@ class VGGFeatureExtractor(FeatureExtractor):
             if i in self.content_layers:
                 content_features.append(x)
             if i in self.style_layers:
+                # 论文中事实上这里需要除以一个常数，即四倍的特征图大小的平方和滤波器个数的平方
+                # 但考虑到最后我们需要对风格损失加权，所以这里省略了这个常数
                 style_features.append(compute_gama_matrix(x))
         return content_features, style_features
 
@@ -97,14 +99,12 @@ class GatysStyleTransferModel(nn.Module):
     style_features: List[torch.Tensor]
     generated_image: nn.Parameter
 
-    # pylint: disable=too-many-arguments, too-many-positional-arguments
     def __init__(
         self,
-        content_weight: float,
-        style_weight: float,
         feature_extractor: FeatureExtractor,
         content_image: torch.Tensor,
         style_image: torch.Tensor,
+        **kwargs,
     ):
         """初始化Gatys风格迁移模型
 
@@ -116,6 +116,8 @@ class GatysStyleTransferModel(nn.Module):
             style_image: 风格图像
         """
         super().__init__()
+        content_weight = kwargs.get("content_weight", 1e4)
+        style_weight = kwargs.get("style_weight", 1e-2)
         self.content_weight = content_weight
         self.style_weight = style_weight
         self.feature_extractor = feature_extractor
@@ -126,7 +128,10 @@ class GatysStyleTransferModel(nn.Module):
         self.generated_image = nn.Parameter(content_image.clone().requires_grad_(True))
 
     # pylint: disable=arguments-differ
-    def to(self, device: torch.device) -> "GatysStyleTransferModel":
+    def to(
+        self,
+        device: torch.device,
+    ) -> "GatysStyleTransferModel":
         super().to(device)
         self.content_features = [
             feature.to(device) for feature in self.content_features
@@ -175,7 +180,7 @@ class GatysStyleTransferModel(nn.Module):
             content_features, generated_features
         ):
             loss += nn.MSELoss()(content_feature, generated_feature)
-        return loss
+        return loss / len(content_features)
 
     @staticmethod
     def compute_style_loss(
@@ -194,4 +199,4 @@ class GatysStyleTransferModel(nn.Module):
         loss = 0.0
         for style_feature, generated_feature in zip(style_features, generated_features):
             loss += nn.MSELoss()(style_feature, generated_feature)
-        return loss
+        return loss / len(style_features)

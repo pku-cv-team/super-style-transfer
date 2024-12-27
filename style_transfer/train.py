@@ -65,7 +65,11 @@ def main():
     if model_type == "gatys":
         feature_extractor = VGGFeatureExtractor()
         transfer_model = GatysStyleTransferModel(
-            content_weight, style_weight, feature_extractor, content_image, style_image
+            feature_extractor,
+            content_image,
+            style_image,
+            content_weight=content_weight,
+            style_weight=style_weight,
         )
     else:
         raise ValueError("Unsupported model type.")
