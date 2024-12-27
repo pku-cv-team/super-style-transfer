@@ -93,10 +93,10 @@ class GatysStyleTransferModel(nn.Module):
         """前向传播
 
         Args:
-            generated_image: 生成图像
+            generated_image: 生成图像，shape: (N, C, H, W)，其中 N 为 1
 
         Returns:
-            loss: 损失
+            loss: 损失，为内容损失和风格损失的加权和
         """
         # TODO(NOT_SPECIFIC_ONE): 实现forward方法，计算损失
         pass
