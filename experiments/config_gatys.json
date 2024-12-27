@@ -9,5 +9,7 @@
   "style_weight": 1e10,
   "learning_rate": 0.01,
   "iterations": 500,
-  "device": "cuda"
+  "device": "cuda",
+  "content_layers": [4],
+  "style_layers": [0, 1, 2, 3, 4]
 }
