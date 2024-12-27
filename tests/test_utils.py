@@ -1,6 +1,5 @@
 from style_transfer.data import read_img
 from style_transfer.utils.visualization import show_image
-import pytest
 
 
 def test_show_img():
