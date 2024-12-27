@@ -8,15 +8,11 @@ from torchvision import transforms
 from PIL import Image
 
 
-def read_img_to_tensor(
-    path: str,
-    image_size: Tuple[int, 2] = (224, 224),
-) -> torch.Tensor:
+def read_img_to_tensor(path: str) -> torch.Tensor:
     """读取图像文件并转换为模型输入的张量
 
     Args:
         path (str): 图像文件路径
-        image_size (Tuple[int, 2]): 图像尺寸
 
     Returns:
         torch.Tensor: 模型输入张量
@@ -24,7 +20,6 @@ def read_img_to_tensor(
     image: Image = Image.open(path).convert("RGB")
     transform = transforms.Compose(
         [
-            transforms.Resize(image_size),
             transforms.ToTensor(),
         ]
     )
@@ -115,3 +110,23 @@ def save_img_from_tensor(
     """
     image = img_tensor_to_pil(unnormalize_img_tensor(image_tensor, mean, std))
     image.save(output_file)
+
+
+def resize_img_tensor(
+    image_tensor: torch.Tensor, size: Tuple[int, int]
+) -> torch.Tensor:
+    """调整图像张量尺寸
+
+    Args:
+        image_tensor (torch.Tensor): 图像张量
+        size (Tuple[int, int]): 尺寸
+
+    Returns:
+        torch.Tensor: 调整后的图像张量
+    """
+    transform = transforms.Compose(
+        [
+            transforms.Resize(size),
+        ]
+    )
+    return transform(image_tensor)
