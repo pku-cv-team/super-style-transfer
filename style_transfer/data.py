@@ -94,12 +94,7 @@ def img_tensor_to_pil(image_tensor: torch.Tensor) -> Image:
     return transforms.ToPILImage()(image_tensor)
 
 
-def save_img_from_tensor(
-    image_tensor: torch.Tensor,
-    output_file: str,
-    mean: List[float] = None,
-    std: List[float] = None,
-):
+def save_img_from_tensor(image_tensor: torch.Tensor, output_file: str):
     """保存图像
 
     Args:
@@ -108,7 +103,7 @@ def save_img_from_tensor(
         mean (List[float]): 均值
         std (List[float]): 标准差
     """
-    image = img_tensor_to_pil(unnormalize_img_tensor(image_tensor, mean, std))
+    image = img_tensor_to_pil(image_tensor)
     image.save(output_file)
 
 
