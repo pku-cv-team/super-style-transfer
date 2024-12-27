@@ -1,13 +1,13 @@
 # pylint: disable=all
 
-from style_transfer.data import read_img
+from style_transfer.data import read_img_to_tensor
 from style_transfer.utils import visualization, metrices
 import torch
 import numpy as np
 
 
 def test_show_img():
-    image = read_img("tests/test_img/test.jpg")
+    image = read_img_to_tensor("tests/test_img/test.jpg")
     visualization.show_image(image)
     assert True
 

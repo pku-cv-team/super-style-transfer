@@ -2,17 +2,12 @@
 可视化模块，与图片展示、结果可视化等的函数和类应该在这个文件
 """
 
-from typing import List
 import torch
-from torchvision import transforms
 import matplotlib.pyplot as plt
+from style_transfer.data import img_tensor_to_pil  # pylint: disable=import-error
 
 
-def show_image(
-    tensor: torch.Tensor,
-    mean: List[float] = None,
-    std: List[float] = None,
-):
+def show_image(tensor: torch.Tensor):
     """展示图片
     Args:
         tensor (torch.Tensor): 图片张量
@@ -22,24 +17,8 @@ def show_image(
     Returns:
         None
     """
-    if mean is None:
-        mean = [0.485, 0.456, 0.406]
-    if std is None:
-        std = [0.229, 0.224, 0.225]
-    unnormalize = transforms.Compose(
-        [
-            transforms.Normalize(
-                mean=[0, 0, 0], std=[1 / std[0], 1 / std[1], 1 / std[2]]
-            ),
-            transforms.Normalize(mean=[-mean[0], -mean[1], -mean[2]], std=[1, 1, 1]),
-        ]
-    )
-    if len(tensor.shape) == 3:
-        image = tensor
-    else:
-        image = tensor.squeeze(0)
-    image = unnormalize(image)
-    image = image.permute(1, 2, 0)
-    plt.imshow(image.numpy())
+    if tensor.dim() == 4:
+        tensor = tensor.squeeze(0)
+    plt.imshow(img_tensor_to_pil(tensor))
     plt.axis("off")
     plt.show()
