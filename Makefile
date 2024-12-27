@@ -13,4 +13,4 @@ format:
 	black $(source_dir) $(test_dir)
 
 clean:
-	rm -rf .tox .nox .pytest_cache .mypy_cache __pycache__
+	find . -type d -name "__pycache__" -exec rm -r {} +
