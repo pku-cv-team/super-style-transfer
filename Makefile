@@ -1,7 +1,7 @@
 source_dir = style_transfer
 test_dir = tests
 
-.PHONY: test lint typecheck format clean
+.PHONY: test lint typecheck format clean gatys
 
 test:
 	pytest
@@ -15,3 +15,6 @@ format:
 clean:
 	find . -type d -name "__pycache__" -exec rm -r {} +
 	find . -type d -name ".pytest_cache" -exec rm -r {} +
+
+gatys:
+	python style_transfer/train.py --config experiments/config_gatys.json
