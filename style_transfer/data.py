@@ -6,8 +6,10 @@ from typing import List, Tuple
 import torch
 from torchvision import transforms
 from PIL import Image
+from style_transfer.utils.func_utils import my_check_return_type
 
 
+@my_check_return_type(torch.Tensor)
 def read_img_to_tensor(path: str) -> torch.Tensor:
     """读取图像文件并转换为模型输入的张量
 
@@ -26,6 +28,7 @@ def read_img_to_tensor(path: str) -> torch.Tensor:
     return transform(image)
 
 
+@my_check_return_type(torch.Tensor)
 def normalize_img_tensor(
     image_tensor: torch.Tensor,
     mean: List[float] = None,
@@ -53,6 +56,7 @@ def normalize_img_tensor(
     return transform(image_tensor)
 
 
+@my_check_return_type(torch.Tensor)
 def unnormalize_img_tensor(
     image_tensor: torch.Tensor,
     mean: List[float] = None,
@@ -66,7 +70,7 @@ def unnormalize_img_tensor(
         std (List[float]): 标准差
 
     Returns:
-        Image: 图像
+        torch.Tensor: 图像张量
     """
     if mean is None:
         mean = [0.485, 0.456, 0.406]
@@ -100,13 +104,12 @@ def save_img_from_tensor(image_tensor: torch.Tensor, output_file: str):
     Args:
         image_tensor (torch.Tensor): 图像张量
         output_file (str): 输出文件路径
-        mean (List[float]): 均值
-        std (List[float]): 标准差
     """
     image = img_tensor_to_pil(image_tensor)
     image.save(output_file)
 
 
+@my_check_return_type(torch.Tensor)
 def resize_img_tensor(
     image_tensor: torch.Tensor, size: Tuple[int, int]
 ) -> torch.Tensor:
