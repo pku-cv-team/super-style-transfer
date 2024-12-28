@@ -5,6 +5,9 @@ import torch
 from torch import nn
 
 
+# TODO(NOT_SPECIFICED_ONE): 应该完全的作为 torch.nn.Module 的子类，重载其方法，或者应该完全的
+# 不依赖于 torch.nn.Module ，但是现在的设计是两者都有，既需要使用 torch.nn.Module 的 parameters 方法，
+# 又在 forward 和 to 方法中与 torch.nn.Module 有所不同，应该在之后考虑重构
 class NeuralStyleTransferModel(ABC, nn.Module):
     """风格迁移模型"""
 
@@ -68,13 +71,13 @@ class NeuralStyleTransferModel(ABC, nn.Module):
         self._style_image_storage = value
 
     @property
-    def generated_image(self) -> torch.Tensor:
+    def generated_image(self) -> nn.Parameter:
         """生成图像"""
         if not hasattr(self, "_generated_image_storage"):
             raise AttributeError("Generated image is not set")
         return self._generated_image_storage
 
     @generated_image.setter
-    def generated_image(self, value: torch.Tensor):
+    def generated_image(self, value: nn.Parameter):
         """设置生成图像"""
         self._generated_image_storage = value
