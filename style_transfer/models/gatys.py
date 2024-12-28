@@ -7,6 +7,7 @@ from torch import nn
 import torchvision.models
 
 
+# 这是一个抽象基类，只有一个公共方法，我没有想到还需要其他的接口或者可以将既有的方法拆分的方法，所以暂时先这样
 # pylint: disable=too-few-public-methods
 class FeatureExtractor(ABC):
     """特征提取器的抽象基类"""
@@ -42,7 +43,6 @@ class FeatureExtractor(ABC):
         return gama_matrix
 
 
-# pylint: disable=too-few-public-methods
 class VGGFeatureExtractor(FeatureExtractor):
     """使用VGG网络提取特征"""
 
@@ -140,6 +140,7 @@ class GatysStyleTransferModel(nn.Module):
         _, self.style_features = self.feature_extractor.extract_features(style_image)
         self.generated_image = nn.Parameter(content_image.clone().requires_grad_(True))
 
+    # 按照Pytorch的实现，这里实际上还有其他参数，但我不知道如何实现，所以先这样
     # pylint: disable=arguments-differ
     def to(
         self,
