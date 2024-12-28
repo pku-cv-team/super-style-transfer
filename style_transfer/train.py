@@ -14,6 +14,7 @@ from style_transfer.data import (
 from style_transfer.utils.json_loader import JsonLoader
 from style_transfer.models.feature_extractor import VGGFeatureExtractor
 from style_transfer.models.gatys import GatysStyleTransferModel
+from style_transfer.models.lapstyle import LapStyleTransferModel
 
 
 def train(transfer_model: nn.Module, iterations: int, optimzer: torch.optim):
@@ -65,6 +66,7 @@ def main():
     style_image.requires_grad = False
     transfer_model = None
     if model_type == "gatys":
+        # TODO(NOT_SPECIFIC_ONE) 这里使用的是VGG特征提取器，后续可以考虑使用其他特征提取器
         feature_extractor = VGGFeatureExtractor()
         transfer_model = GatysStyleTransferModel(
             feature_extractor,
@@ -72,6 +74,20 @@ def main():
             style_image,
             content_weight=content_weight,
             style_weight=style_weight,
+        )
+    elif model_type == "lapstyle":
+        feature_extractor = VGGFeatureExtractor()
+        gatsy_model = GatysStyleTransferModel(
+            feature_extractor,
+            content_image,
+            style_image,
+            content_weight=content_weight,
+            style_weight=style_weight,
+        )
+        kernel_size: int = json_loader.load("pool_size")
+        lap_weight: float = json_loader.load("lap_weight")
+        transfer_model = LapStyleTransferModel(
+            gatsy_model, kernel_size=kernel_size, lap_weight=lap_weight
         )
     else:
         raise ValueError("Unsupported model type.")
