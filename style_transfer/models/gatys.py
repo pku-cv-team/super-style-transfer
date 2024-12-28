@@ -50,7 +50,6 @@ class VGGFeatureExtractor(FeatureExtractor):
     content_layers: List[int]
     style_layers: List[int]
 
-    # TODO(NOT_SPECIFIC_ONE): 实现VGGFeatureExtractor类
     def __init__(
         self, content_layers: List[int] = None, style_layers: List[int] = None
     ):
@@ -163,11 +162,9 @@ class GatysStyleTransferModel(nn.Module):
         Returns:
             loss: 损失，为内容损失和风格损失的加权和
         """
-        # TODO(NOT_SPECIFIC_ONE): 实现forward方法，计算损失
         content_features, style_features = self.feature_extractor.extract_features(
             self.generated_image
         )
-        # style_features = self.feature_extractor.extract_style_features(self.generated_image)
         content_loss = self.compute_content_loss(
             self.content_features, content_features
         )
@@ -188,7 +185,6 @@ class GatysStyleTransferModel(nn.Module):
         Returns:
             torch.Tensor: 内容损失
         """
-        # TODO(NOT_SPECIFIC_ONE): 实现compute_content_loss方法
         loss = 0.0
         for content_feature, generated_feature in zip(
             content_features, generated_features
@@ -209,7 +205,6 @@ class GatysStyleTransferModel(nn.Module):
         Returns:
             torch.Tensor: 风格损失
         """
-        # TODO(NOT_SPECIFIC_ONE): 实现compute_style_loss方法
         loss = 0.0
         for style_feature, generated_feature in zip(style_features, generated_features):
             loss += nn.MSELoss()(style_feature, generated_feature)

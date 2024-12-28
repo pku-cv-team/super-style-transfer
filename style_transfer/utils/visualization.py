@@ -4,7 +4,7 @@
 
 import torch
 import matplotlib.pyplot as plt
-from style_transfer.data import img_tensor_to_pil  # pylint: disable=import-error
+from style_transfer.data import img_tensor_to_pil
 
 
 def show_image(tensor: torch.Tensor):
