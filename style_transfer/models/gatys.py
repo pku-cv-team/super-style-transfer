@@ -13,12 +13,11 @@ from style_transfer.models.neural_style_transfer import (
 class GatysStyleTransferModel(NeuralStyleTransferModel):
     """Gatys风格迁移模型"""
 
-    content_weight: float
-    style_weight: float
-    feature_extractor: FeatureExtractor
-    content_features: List[torch.Tensor]
-    style_features: List[torch.Tensor]
-    generated_image: nn.Parameter
+    __content_weight: float
+    __style_weight: float
+    __feature_extractor: FeatureExtractor
+    __content_features: List[torch.Tensor]
+    __style_features: List[torch.Tensor]
 
     def __init__(
         self,
@@ -42,13 +41,15 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         self._style_image = style_image
         content_weight = kwargs.get("content_weight", 1e4)
         style_weight = kwargs.get("style_weight", 1e-2)
-        self.content_weight = content_weight
-        self.style_weight = style_weight
-        self.feature_extractor = feature_extractor
-        self.content_features, _ = self.feature_extractor.extract_features(
+        self.__content_weight = content_weight
+        self.__style_weight = style_weight
+        self.__feature_extractor = feature_extractor
+        self.__content_features, _ = self.__feature_extractor.extract_features(
             content_image
         )
-        _, self.style_features = self.feature_extractor.extract_features(style_image)
+        _, self.__style_features = self.__feature_extractor.extract_features(
+            style_image
+        )
         self.generated_image = nn.Parameter(content_image.clone().requires_grad_(True))
         self._content_image = content_image
         self._style_image = style_image
@@ -60,11 +61,13 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
     ) -> NeuralStyleTransferModel:
         """将风格迁移模型移动到指定设备"""
         super().to(device)
-        self.content_features = [
-            feature.to(device) for feature in self.content_features
+        self.__content_features = [
+            feature.to(device) for feature in self.__content_features
         ]
-        self.style_features = [feature.to(device) for feature in self.style_features]
-        self.feature_extractor = self.feature_extractor.to(device)
+        self.__style_features = [
+            feature.to(device) for feature in self.__style_features
+        ]
+        self.__feature_extractor = self.__feature_extractor.to(device)
         return self
 
     @override
@@ -77,14 +80,14 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         Returns:
             loss: 损失，为内容损失和风格损失的加权和
         """
-        content_features, style_features = self.feature_extractor.extract_features(
+        content_features, style_features = self.__feature_extractor.extract_features(
             self.generated_image
         )
         content_loss = self.__compute_content_loss(
-            self.content_features, content_features
+            self.__content_features, content_features
         )
-        style_loss = self.__compute_style_loss(self.style_features, style_features)
-        loss = self.content_weight * content_loss + self.style_weight * style_loss
+        style_loss = self.__compute_style_loss(self.__style_features, style_features)
+        loss = self.__content_weight * content_loss + self.__style_weight * style_loss
         return loss
 
     @staticmethod

@@ -55,25 +55,25 @@ class FeatureExtractor(ABC):
 class VGGFeatureExtractor(FeatureExtractor):
     """使用VGG网络提取特征"""
 
-    vgg19: nn.Module
-    content_layers: List[int]
-    style_layers: List[int]
+    __vgg19: nn.Module
+    __content_layers: List[int]
+    __style_layers: List[int]
 
     def __init__(
         self, content_layers: List[int] = None, style_layers: List[int] = None
     ):
-        self.vgg19 = torchvision.models.vgg19(
+        self.__vgg19 = torchvision.models.vgg19(
             weights=torchvision.models.VGG19_Weights.DEFAULT
         ).features.eval()
-        self.vgg19 = self.vgg19[:36]
-        for param in self.vgg19.parameters():
+        self.__vgg19 = self.__vgg19[:36]
+        for param in self.__vgg19.parameters():
             param.requires_grad = False
         if content_layers is None:
             content_layers = [31]
         if style_layers is None:
             style_layers = [1, 6, 11, 20, 29]
-        self.content_layers = content_layers
-        self.style_layers = style_layers
+        self.__content_layers = content_layers
+        self.__style_layers = style_layers
 
     @override
     def to(self, device: torch.device) -> "VGGFeatureExtractor":
@@ -85,7 +85,7 @@ class VGGFeatureExtractor(FeatureExtractor):
         Returns:
             VGGFeatureExtractor: 特征提取器
         """
-        self.vgg19.to(device)
+        self.__vgg19.to(device)
         return self
 
     @override
@@ -102,11 +102,11 @@ class VGGFeatureExtractor(FeatureExtractor):
         """
         content_features, style_features = [], []
         x = image_tensor
-        for i, layer in enumerate(self.vgg19):
+        for i, layer in enumerate(self.__vgg19):
             x = layer(x)
-            if i in self.content_layers:
+            if i in self.__content_layers:
                 content_features.append(x)
-            if i in self.style_layers:
+            if i in self.__style_layers:
                 # 论文中事实上这里需要除以一个常数，即四倍的特征图大小的平方和滤波器个数的平方
                 # 但考虑到最后我们需要对风格损失加权，所以这里省略了这个常数
                 style_features.append(self._compute_gama_matrix(x))
@@ -172,3 +172,15 @@ class NeuralStyleTransferModel(ABC, nn.Module):
     def _style_image(self, value: torch.Tensor):
         """设置风格图像"""
         self._style_image_storage = value
+
+    @property
+    def generated_image(self) -> torch.Tensor:
+        """生成图像"""
+        if not hasattr(self, "_generated_image_storage"):
+            raise AttributeError("Generated image is not set")
+        return self._generated_image_storage
+
+    @generated_image.setter
+    def generated_image(self, value: torch.Tensor):
+        """设置生成图像"""
+        self._generated_image_storage = value

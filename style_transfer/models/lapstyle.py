@@ -8,15 +8,15 @@ from style_transfer.models.neural_style_transfer_decorator import NeuralDecorato
 class LapStyleTransferModel(NeuralDecorator):
     """Laplacian风格迁移模型"""
 
-    num_layers: int
-    lap_weight: float
-    lap_features: List[torch.Tensor]
+    __num_layers: int
+    __lap_weight: float
+    __lap_features: List[torch.Tensor]
 
     def __init__(self, model: NeuralDecorator, **kwargs):
-        self.num_layers = kwargs.get("num_layers", 5)
-        self.lap_weight = kwargs.get("lap_weight", 1e4)
-        self.lap_features = self.__compute_laplacian_pyramid(
-            model._content_image, self.num_layers
+        self.__num_layers = kwargs.get("num_layers", 5)
+        self.__lap_weight = kwargs.get("lap_weight", 1e4)
+        self.__lap_features = self.__compute_laplacian_pyramid(
+            model._content_image, self.__num_layers
         )
         super().__init__(model)
 
@@ -27,12 +27,12 @@ class LapStyleTransferModel(NeuralDecorator):
         Returns:
             torch.Tensor: 损失
         """
-        content_and_style_loss_with_weight = self.model()
+        content_and_style_loss_with_weight = self._model()
         lap_features = self.__compute_laplacian_pyramid(
-            self.model.generated_image, self.num_layers
+            self._model.generated_image, self.__num_layers
         )
-        lap_loss = self.__compute_laplacian_loss(self.lap_features, lap_features)
-        return content_and_style_loss_with_weight + self.lap_weight * lap_loss
+        lap_loss = self.__compute_laplacian_loss(self.__lap_features, lap_features)
+        return content_and_style_loss_with_weight + self.__lap_weight * lap_loss
 
     @staticmethod
     def __compute_laplacian_loss(
