@@ -1,14 +1,12 @@
 """Gatys风格迁移模型"""
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple
+from typing import List, Tuple, override
 import torch
 from torch import nn
 import torchvision.models
 
 
-# 这是一个抽象基类，只有一个公共方法，我没有想到还需要其他的接口或者可以将既有的方法拆分的方法，所以暂时先这样
-# pylint: disable=too-few-public-methods
 class FeatureExtractor(ABC):
     """特征提取器的抽象基类"""
 
@@ -42,6 +40,17 @@ class FeatureExtractor(ABC):
         gama_matrix = torch.bmm(features, features.transpose(1, 2))
         return gama_matrix
 
+    @abstractmethod
+    def to(self, device: torch.device) -> "FeatureExtractor":
+        """将特征提取器移动到指定设备
+
+        Args:
+            device: 设备
+
+        Returns:
+            FeatureExtractor: 特征提取器
+        """
+
 
 class VGGFeatureExtractor(FeatureExtractor):
     """使用VGG网络提取特征"""
@@ -66,6 +75,7 @@ class VGGFeatureExtractor(FeatureExtractor):
         self.content_layers = content_layers
         self.style_layers = style_layers
 
+    @override
     def to(self, device: torch.device) -> "VGGFeatureExtractor":
         """将特征提取器移动到指定设备
 
@@ -78,6 +88,7 @@ class VGGFeatureExtractor(FeatureExtractor):
         self.vgg19.to(device)
         return self
 
+    @override
     def extract_features(
         self, image_tensor: torch.Tensor
     ) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
@@ -105,6 +116,7 @@ class VGGFeatureExtractor(FeatureExtractor):
 class GatysStyleTransferModel(nn.Module):
     """Gatys风格迁移模型"""
 
+    content_image: torch.Tensor
     content_weight: float
     style_weight: float
     feature_extractor: FeatureExtractor
@@ -129,6 +141,7 @@ class GatysStyleTransferModel(nn.Module):
             style_image: 风格图像
         """
         super().__init__()
+        self.content_iamge = content_image
         content_weight = kwargs.get("content_weight", 1e4)
         style_weight = kwargs.get("style_weight", 1e-2)
         self.content_weight = content_weight
@@ -154,6 +167,7 @@ class GatysStyleTransferModel(nn.Module):
         self.feature_extractor = self.feature_extractor.to(device)
         return self
 
+    @override
     def forward(self) -> torch.Tensor:
         """前向传播
 
@@ -166,15 +180,15 @@ class GatysStyleTransferModel(nn.Module):
         content_features, style_features = self.feature_extractor.extract_features(
             self.generated_image
         )
-        content_loss = self.compute_content_loss(
+        content_loss = self.__compute_content_loss(
             self.content_features, content_features
         )
-        style_loss = self.compute_style_loss(self.style_features, style_features)
+        style_loss = self.__compute_style_loss(self.style_features, style_features)
         loss = self.content_weight * content_loss + self.style_weight * style_loss
         return loss
 
     @staticmethod
-    def compute_content_loss(
+    def __compute_content_loss(
         content_features: List[torch.Tensor], generated_features: List[torch.Tensor]
     ) -> torch.Tensor:
         """计算内容损失
@@ -194,7 +208,7 @@ class GatysStyleTransferModel(nn.Module):
         return loss / len(content_features)
 
     @staticmethod
-    def compute_style_loss(
+    def __compute_style_loss(
         style_features: List[torch.Tensor], generated_features: List[torch.Tensor]
     ) -> torch.Tensor:
         """计算风格损失
