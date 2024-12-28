@@ -12,7 +12,8 @@ from style_transfer.data import (
     resize_img_tensor,
 )
 from style_transfer.utils.json_loader import JsonLoader
-from style_transfer.models.gatys import GatysStyleTransferModel, VGGFeatureExtractor
+from style_transfer.models.neural_style_transfer import VGGFeatureExtractor
+from style_transfer.models.gatys import GatysStyleTransferModel
 
 
 def train(transfer_model: nn.Module, iterations: int, optimzer: torch.optim):
