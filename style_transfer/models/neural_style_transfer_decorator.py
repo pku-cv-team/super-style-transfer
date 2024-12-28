@@ -4,7 +4,7 @@ import torch
 from style_transfer.models.gatys import NeuralStyleTransferModel
 
 
-class NerualDecorator(NeuralStyleTransferModel):
+class NeuralDecorator(NeuralStyleTransferModel):
     """风格迁移模型装饰器"""
 
     model: NeuralStyleTransferModel
@@ -13,14 +13,14 @@ class NerualDecorator(NeuralStyleTransferModel):
         self.model = model
         super().__init__()
 
-    def to(self, device: torch.device) -> "NerualDecorator":
+    def to(self, device: torch.device) -> "NeuralDecorator":
         """将风格迁移模型移动到指定设备
 
         Args:
             device: 设备
 
         Returns:
-            NerualDecorator: 移动后的风格迁移模型
+            NeuralDecorator: 移动后的风格迁移模型
         """
         self.model = self.model.to(device)
         return self

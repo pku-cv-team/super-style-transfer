@@ -2,17 +2,17 @@
 
 from typing import List, override
 import torch
-from style_transfer.models.neural_style_transfer_decorator import NerualDecorator
+from style_transfer.models.neural_style_transfer_decorator import NeuralDecorator
 
 
-class LapStyleTransferModel(NerualDecorator):
+class LapStyleTransferModel(NeuralDecorator):
     """Laplacian风格迁移模型"""
 
     num_layers: int
     lap_weight: float
     lap_features: List[torch.Tensor]
 
-    def __init__(self, model: NerualDecorator, **kwargs):
+    def __init__(self, model: NeuralDecorator, **kwargs):
         self.num_layers = kwargs.get("num_layers", 5)
         self.lap_weight = kwargs.get("lap_weight", 1e4)
         self.lap_features = self.__compute_laplacian_pyramid(
