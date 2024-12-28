@@ -146,6 +146,8 @@ class NeuralStyleTransferModel(ABC, nn.Module):
         Returns:
             NeuralStyleTransferModel: 风格迁移模型
         """
+        self._content_image = self._content_image.to(device)
+        self._style_image = self._style_image.to(device)
         super().to(device)
         return self
 
