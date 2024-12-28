@@ -148,3 +148,27 @@ class NeuralStyleTransferModel(ABC, nn.Module):
         """
         super().to(device)
         return self
+
+    @property
+    def _content_image(self) -> torch.Tensor:
+        """内容图像"""
+        if not hasattr(self, "_content_image_storage"):
+            raise AttributeError("Content image is not set")
+        return self._content_image_storage
+
+    @_content_image.setter
+    def _content_image(self, value: torch.Tensor):
+        """设置内容图像"""
+        self._content_image_storage = value
+
+    @property
+    def _style_image(self) -> torch.Tensor:
+        """风格图像"""
+        if not hasattr(self, "_style_image_storage"):
+            raise AttributeError("Style image is not set")
+        return self._style_image_storage
+
+    @_style_image.setter
+    def _style_image(self, value: torch.Tensor):
+        """设置风格图像"""
+        self._style_image_storage = value

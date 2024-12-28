@@ -19,8 +19,6 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
     content_features: List[torch.Tensor]
     style_features: List[torch.Tensor]
     generated_image: nn.Parameter
-    content_image: torch.Tensor
-    style_image: torch.Tensor
 
     def __init__(
         self,
@@ -40,8 +38,8 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         """
 
         super().__init__()
-        self.content_image = content_image
-        self.style_image = style_image
+        self._content_image = content_image
+        self._style_image = style_image
         content_weight = kwargs.get("content_weight", 1e4)
         style_weight = kwargs.get("style_weight", 1e-2)
         self.content_weight = content_weight
@@ -52,8 +50,8 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         )
         _, self.style_features = self.feature_extractor.extract_features(style_image)
         self.generated_image = nn.Parameter(content_image.clone().requires_grad_(True))
-        self.content_image = content_image
-        self.style_image = style_image
+        self._content_image = content_image
+        self._style_image = style_image
 
     @override
     def to(

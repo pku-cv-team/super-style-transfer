@@ -16,7 +16,7 @@ class LapStyleTransferModel(NerualDecorator):
         self.num_layers = kwargs.get("num_layers", 5)
         self.lap_weight = kwargs.get("lap_weight", 1e4)
         self.lap_features = self.__compute_laplacian_pyramid(
-            model.content_image, self.num_layers
+            model._content_image, self.num_layers
         )
         super().__init__(model)
 
