@@ -1,5 +1,6 @@
 """Laplacian风格迁移模型"""
 
+from functools import cached_property
 from typing import List, override
 import torch
 from style_transfer.models.neural_style_transfer_decorator import NeuralDecorator
@@ -10,7 +11,6 @@ class LapStyleTransferModel(NeuralDecorator):
 
     __num_layers: int
     __lap_weight: float
-    __lap_features: List[torch.Tensor]
 
     def __init__(self, model: NeuralDecorator, **kwargs):
         self.__num_layers = kwargs.get("num_layers", 5)
@@ -63,3 +63,10 @@ class LapStyleTransferModel(NeuralDecorator):
             List[torch.Tensor]: 拉普拉斯金字塔
         """
         # TODO(NOT_SPECIFIC_ONE):
+
+    @cached_property
+    def cached_lap_features(self) -> List[torch.Tensor]:
+        """缓存的拉普拉斯特征"""
+        return self.__compute_laplacian_pyramid(
+            self._model.content_image, self.__num_layers
+        )

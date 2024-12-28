@@ -4,10 +4,8 @@ from functools import cached_property
 from typing import List, override
 import torch
 from torch import nn
-from style_transfer.models.neural_style_transfer import (
-    NeuralStyleTransferModel,
-    FeatureExtractor,
-)
+from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
+from style_transfer.models.feature_extractor import FeatureExtractor
 
 
 # pylint: disable=too-many-instance-attributes
