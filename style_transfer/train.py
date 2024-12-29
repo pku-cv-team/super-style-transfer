@@ -3,7 +3,6 @@
 import argparse
 from typing import Tuple
 import torch
-from torch import nn
 from style_transfer.data import (
     read_img_to_tensor,
     save_img_from_tensor,
@@ -13,11 +12,14 @@ from style_transfer.data import (
 )
 from style_transfer.utils.json_loader import JsonLoader
 from style_transfer.models.feature_extractor import VGGFeatureExtractor
+from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.gatys import GatysStyleTransferModel
 from style_transfer.models.lapstyle import LapStyleTransferModel
 
 
-def train(transfer_model: nn.Module, iterations: int, optimzer: torch.optim):
+def train(
+    transfer_model: NeuralStyleTransferModel, iterations: int, optimzer: torch.optim
+):
     """训练风格迁移模型
 
     Args:
@@ -29,7 +31,7 @@ def train(transfer_model: nn.Module, iterations: int, optimzer: torch.optim):
     torch.autograd.set_detect_anomaly(True)
     for i in range(iterations):
         optimzer.zero_grad()
-        loss = transfer_model()
+        loss = transfer_model.forward()
         loss.backward()
         optimzer.step()
         print(f"iteration: {i}, loss: {loss.item()}")
@@ -101,7 +103,7 @@ def main():
     # TODO(NOT_SPECIFIC_ONE) 原论文中使用的是L-BFGS优化器，这里使用Adam优化器，在后续开发中应该考虑使用L-BFGS优化器
     # 这并不容易，你可能需要考虑创建新的子模块，直接在这里添加代码可能会使得这段代码变得复杂，难以维护
     optimizer: torch.optim = torch.optim.Adam(
-        transfer_model.parameters(), lr=learning_rate
+        [transfer_model.generated_image], lr=learning_rate
     )
     train(transfer_model, iterations, optimizer)
     output_file_path = json_loader.load("output_image")

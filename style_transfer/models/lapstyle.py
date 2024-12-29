@@ -4,16 +4,18 @@ from functools import cached_property
 from typing import override
 import torch
 from torch.nn import functional as F
-from style_transfer.models.neural_style_transfer_decorator import NeuralDecorator
+from style_transfer.models.neural_style_transfer_decorator import (
+    NeuralStyleTransferDecorator,
+)
 
 
-class LapStyleTransferModel(NeuralDecorator):
+class LapStyleTransferModel(NeuralStyleTransferDecorator):
     """Laplacian风格迁移模型"""
 
     __kernel_size: int
     __lap_weight: float
 
-    def __init__(self, model: NeuralDecorator, **kwargs):
+    def __init__(self, model: NeuralStyleTransferDecorator, **kwargs):
         self.__kernel_size = kwargs.get("kernel_size", 5)
         self.__lap_weight = kwargs.get("lap_weight", 1e4)
         super().__init__(model)
@@ -25,7 +27,7 @@ class LapStyleTransferModel(NeuralDecorator):
         Returns:
             torch.Tensor: 损失
         """
-        content_and_style_loss_with_weight = self._model()
+        content_and_style_loss_with_weight = self._model.forward()
         lap_features = self.__compute_laplacian_feature(
             self._model.generated_image, self.__kernel_size
         )
