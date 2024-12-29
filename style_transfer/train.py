@@ -66,7 +66,6 @@ def main():
     style_image.requires_grad = False
     transfer_model = None
     if model_type == "gatys":
-        # TODO(NOT_SPECIFIC_ONE) 这里使用的是VGG特征提取器，后续可以考虑使用其他特征提取器
         feature_extractor = VGGFeatureExtractor()
         transfer_model = GatysStyleTransferModel(
             feature_extractor,
@@ -107,7 +106,8 @@ def main():
     train(transfer_model, iterations, optimizer)
     output_file_path = json_loader.load("output_image")
     result_img = resize_img_tensor(
-        unnormalize_img_tensor(transfer_model.generated_image[0]), content_size
+        unnormalize_img_tensor(transfer_model.generated_image[0]).clamp(0, 1),
+        content_size,
     )
     save_img_from_tensor(result_img, output_file_path)
 
