@@ -9,7 +9,7 @@ from style_transfer.models.neural_style_transfer_decorator import (
 )
 
 
-class LapStyleTransferModel(NeuralStyleTransferDecorator):
+class LapstyleTransferModel(NeuralStyleTransferDecorator):
     """Laplacian风格迁移模型"""
 
     __kernel_size: int

@@ -14,7 +14,7 @@ from style_transfer.utils.json_loader import JsonLoader
 from style_transfer.models.feature_extractor import VGGFeatureExtractor
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.gatys import GatysStyleTransferModel
-from style_transfer.models.lapstyle import LapStyleTransferModel
+from style_transfer.models.lapstyle import LapstyleTransferModel
 
 
 def train(
@@ -87,7 +87,7 @@ def main():
         )
         kernel_size: int = json_loader.load("pool_size")
         lap_weight: float = json_loader.load("lap_weight")
-        transfer_model = LapStyleTransferModel(
+        transfer_model = LapstyleTransferModel(
             gatsy_model, kernel_size=kernel_size, lap_weight=lap_weight
         )
     else:
