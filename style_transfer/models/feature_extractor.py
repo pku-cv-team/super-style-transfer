@@ -88,12 +88,15 @@ class VGGFeatureExtractor(FeatureExtractor):
         """
         content_features, style_features = [], []
         x = image_tensor
+        original_size = x.numel()
         for i, layer in enumerate(self.__vgg19):
             x = layer(x)
             if i in self.__content_layers:
                 content_features.append(x)
             if i in self.__style_layers:
-                # 论文中事实上这里需要除以一个常数，即四倍的特征图大小的平方和滤波器个数的平方
-                # 但考虑到最后我们需要对风格损失加权，所以这里省略了这个常数
-                style_features.append(compute_gama_matrix(x))
+                # 论文中事实上还应该除以2,但考虑到我们还要对损失加权，所以这里略去
+                # 乘以original_size是为了防止梯度消失，也便于调整权重
+                style_features.append(
+                    compute_gama_matrix(x) * original_size / x.numel()
+                )
         return content_features, style_features

@@ -50,11 +50,10 @@ def main():
     json_loader: JsonLoader = JsonLoader(config_path)
     model_type: str = json_loader.load("model")
     content_image = read_img_to_tensor(json_loader.load("content_image"))
-    scale_factor: float = json_loader.load("scale_factor")
     style_image = read_img_to_tensor(json_loader.load("style_image"))
     image_size: Tuple[int, int] = (
-        int(int(style_image.shape[-2]) / scale_factor),
-        int(int(style_image.shape[-1]) / scale_factor),
+        json_loader.load("image_height"),
+        json_loader.load("image_width"),
     )
     content_size: Tuple[int, int] = content_image.shape[-2:]
     content_image, style_image = resize_img_tensor(

@@ -64,16 +64,13 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         Returns:
             loss: 损失，为内容损失和风格损失的加权和
         """
-        _, c, h, w = self.generated_image.shape
         content_features, style_features = self.__feature_extractor.extract_features(
             self.generated_image
         )
         content_loss = self._compute_loss(
             self.cached_content_features, content_features
         )
-        style_loss = self._compute_loss(self.cached_style_features, style_features) / (
-            4 * c**2 * h**2 * w**2
-        )
+        style_loss = self._compute_loss(self.cached_style_features, style_features)
         loss = self.__content_weight * content_loss + self.__style_weight * style_loss
         return loss
 
