@@ -1,5 +1,6 @@
 import torch
 
+
 def compute_gama_matrix(features: torch.Tensor) -> torch.Tensor:
     """计算Gram矩阵
 

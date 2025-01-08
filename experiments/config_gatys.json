@@ -3,13 +3,12 @@
   "content_image": "data/raw/content/dancing.jpg",
   "style_image": "data/raw/style/picasso.jpg",
   "output_image": "experiments/results/gatys/01.jpg",
-  "image_height": 224,
-  "image_width": 224,
-  "content_weight": 1e4,
-  "style_weight": 1e-2,
+  "scale_factor": 2.0,
+  "content_weight": 1e3,
+  "style_weight": 3e10,
   "learning_rate": 0.02,
-  "iterations": 1000,
+  "iterations": 500,
   "device": "cuda",
-  "content_layers": [30],
+  "content_layers": [25],
   "style_layers": [0, 5, 10, 19, 28]
 }

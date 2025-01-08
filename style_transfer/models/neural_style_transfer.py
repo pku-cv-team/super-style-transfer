@@ -47,9 +47,7 @@ class NeuralStyleTransferModel(ABC):
             torch.Tensor: 损失
         """
         loss = 0.0
-        for feature, generated_feature in zip(
-            features, generated_features
-        ):
+        for feature, generated_feature in zip(features, generated_features):
             loss += nn.MSELoss()(feature, generated_feature)
         return loss / len(features)
 
