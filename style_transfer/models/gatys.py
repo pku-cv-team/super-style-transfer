@@ -68,52 +68,10 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         content_features, style_features = self.__feature_extractor.extract_features(
             self.generated_image
         )
-        content_loss = self.__compute_content_loss(
-            self.cached_content_features, content_features
-        )
-        style_loss = self.__compute_style_loss(
-            self.cached_style_features, style_features
-        )
+        content_loss = self._compute_loss(self.cached_content_features, content_features)
+        style_loss = self._compute_loss(self.cached_style_features, style_features)
         loss = self.__content_weight * content_loss + self.__style_weight * style_loss
         return loss
-
-    @staticmethod
-    def __compute_content_loss(
-        content_features: List[torch.Tensor], generated_features: List[torch.Tensor]
-    ) -> torch.Tensor:
-        """计算内容损失
-
-        Args:
-            content_features: 内容特征列表
-            generated_features: 生成的特征列表
-
-        Returns:
-            torch.Tensor: 内容损失
-        """
-        loss = 0.0
-        for content_feature, generated_feature in zip(
-            content_features, generated_features
-        ):
-            loss += nn.MSELoss()(content_feature, generated_feature)
-        return loss / len(content_features)
-
-    @staticmethod
-    def __compute_style_loss(
-        style_features: List[torch.Tensor], generated_features: List[torch.Tensor]
-    ) -> torch.Tensor:
-        """计算风格损失
-
-        Args:
-            style_features: 风格特征列表
-            generated_features: 生成的特征列表
-
-        Returns:
-            torch.Tensor: 风格损失
-        """
-        loss = 0.0
-        for style_feature, generated_feature in zip(style_features, generated_features):
-            loss += nn.MSELoss()(style_feature, generated_feature)
-        return loss / len(style_features)
 
     @cached_property
     def cached_content_features(self) -> List[torch.Tensor]:

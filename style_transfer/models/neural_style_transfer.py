@@ -1,7 +1,9 @@
 """神经风格迁移模型"""
 
 from abc import ABC, abstractmethod
+from typing import List
 import torch
+from torch import nn
 
 
 class NeuralStyleTransferModel(ABC):
@@ -30,6 +32,26 @@ class NeuralStyleTransferModel(ABC):
         if self.generated_image.grad is not None:
             self.generated_image.grad = self.generated_image.grad.to(device)
         return self
+
+    @staticmethod
+    def _compute_loss(
+        features: List[torch.Tensor], generated_features: List[torch.Tensor]
+    ) -> torch.Tensor:
+        """计算损失
+
+        Args:
+            features: 特征列表
+            generated_features: 生成的特征列表
+
+        Returns:
+            torch.Tensor: 损失
+        """
+        loss = 0.0
+        for feature, generated_feature in zip(
+            features, generated_features
+        ):
+            loss += nn.MSELoss()(feature, generated_feature)
+        return loss / len(features)
 
     @property
     def _content_image(self) -> torch.Tensor:
