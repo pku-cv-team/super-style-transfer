@@ -37,7 +37,7 @@ class FeatureExtractor(ABC):
         """
         n, c, h, w = features.shape
         features = features.view(n, c, h * w)
-        gama_matrix = torch.bmm(features, features.transpose(1, 2))
+        gama_matrix = torch.bmm(features, features.transpose(1, 2)) / (h * w * c)
         return gama_matrix
 
     @abstractmethod
