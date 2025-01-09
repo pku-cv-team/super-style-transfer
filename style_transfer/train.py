@@ -66,15 +66,23 @@ def main():
     style_weight: float = json_loader.load("style_weight")
     content_image.requires_grad = False
     style_image.requires_grad = False
+    content_layers = json_loader.load("content_layers")
+    style_layers = json_loader.load("style_layers")
+    content_layer_weights = json_loader.load("content_layer_weights")
+    style_layer_weights = json_loader.load("style_layer_weights")
     transfer_model = None
     if model_type == "gatys":
-        feature_extractor = VGGFeatureExtractor()
+        feature_extractor = VGGFeatureExtractor(
+            content_layers=content_layers, style_layers=style_layers
+        )
         transfer_model = GatysStyleTransferModel(
             feature_extractor,
             content_image,
             style_image,
             content_weight=content_weight,
             style_weight=style_weight,
+            content_layer_weights=content_layer_weights,
+            style_layer_weights=style_layer_weights,
         )
     elif model_type == "lapstyle":
         feature_extractor = VGGFeatureExtractor()

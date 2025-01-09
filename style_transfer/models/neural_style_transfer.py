@@ -35,7 +35,7 @@ class NeuralStyleTransferModel(ABC):
 
     @staticmethod
     def _compute_loss(
-        features: List[torch.Tensor], generated_features: List[torch.Tensor]
+        features: List[torch.Tensor], generated_features: List[torch.Tensor], **kargs
     ) -> torch.Tensor:
         """计算损失
 
@@ -46,10 +46,18 @@ class NeuralStyleTransferModel(ABC):
         Returns:
             torch.Tensor: 损失
         """
+        weight_list = kargs.get("weight_list", [1.0] * len(features))
+        if weight_list is None:
+            weight_list = [1.0] * len(features)
+        weight_sum = sum(weight_list)
+        if weight_sum != 0:
+            weight_list = [weight / weight_sum for weight in weight_list]
         loss = 0.0
-        for feature, generated_feature in zip(features, generated_features):
-            loss += nn.MSELoss()(feature, generated_feature)
-        return loss / len(features)
+        for feature, generated_feature, weight in zip(
+            features, generated_features, weight_list
+        ):
+            loss += nn.MSELoss()(feature, generated_feature) * weight
+        return loss
 
     @property
     def _content_image(self) -> torch.Tensor:

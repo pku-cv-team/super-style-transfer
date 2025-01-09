@@ -10,6 +10,8 @@
   "learning_rate": 0.02,
   "iterations": 500,
   "device": "cuda",
-  "content_layers": [25],
-  "style_layers": [0, 5, 10, 19, 28]
+  "content_layers": [22],
+  "content_layer_weights": [1.0],
+  "style_layers": [1, 6, 11, 20, 29],
+  "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2]
 }

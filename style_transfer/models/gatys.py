@@ -14,6 +14,8 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
     __content_weight: float
     __style_weight: float
     __feature_extractor: FeatureExtractor
+    __content_layer_weights: List[float]
+    __style_layer_weights: List[float]
 
     def __init__(
         self,
@@ -35,10 +37,10 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         super().__init__()
         self._content_image = content_image
         self._style_image = style_image
-        content_weight = kwargs.get("content_weight", 1e4)
-        style_weight = kwargs.get("style_weight", 1e-2)
-        self.__content_weight = content_weight
-        self.__style_weight = style_weight
+        self.__content_weight = kwargs.get("content_weight", 1e4)
+        self.__style_weight = kwargs.get("style_weight", 1e-2)
+        self.__content_layer_weights = kwargs.get("content_layer_weights", None)
+        self.__style_layer_weights = kwargs.get("style_layer_weights", None)
         self.__feature_extractor = feature_extractor
         self.generated_image = content_image.clone().requires_grad_(True)
         self._content_image = content_image
@@ -68,9 +70,15 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
             self.generated_image
         )
         content_loss = self._compute_loss(
-            self.cached_content_features, content_features
+            self.cached_content_features,
+            content_features,
+            weight_list=self.__content_layer_weights,
         )
-        style_loss = self._compute_loss(self.cached_style_features, style_features)
+        style_loss = self._compute_loss(
+            self.cached_style_features,
+            style_features,
+            weight_list=self.__style_layer_weights,
+        )
         loss = self.__content_weight * content_loss + self.__style_weight * style_loss
         return loss
 
