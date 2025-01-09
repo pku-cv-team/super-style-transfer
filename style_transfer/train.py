@@ -15,6 +15,13 @@ from style_transfer.models.feature_extractor import VGGFeatureExtractor
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.gatys import GatysStyleTransferModel
 from style_transfer.models.lapstyle import LapstyleTransferModel
+import torch
+import torch.backends.cudnn as cudnn
+import numpy as np
+import PIL.Image as pil_image
+
+from models.SRCNN import srcnn
+from utils.pretransfer import convert_rgb_to_ycbcr, convert_ycbcr_to_rgb, calc_psnr
 
 
 def train(
@@ -119,11 +126,53 @@ def main():
     )
     train(transfer_model, iterations, optimizer)
     output_file_path = json_loader.load("output_image")
+    #图像上采样
+    cudnn.benchmark = True
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+    uppermodel=srcnn().to(device)
+    scale=3
+    pre_weight_path=r"C:\Users\YH\Desktop\CV大作业\super-style-transfer\style_transfer\srcnn_x3.pth"#scale为4
+    state_dict=uppermodel.state_dict()
+    for n,p in torch.load(pre_weight_path,map_location=lambda storage,loc:storage,weights_only=True).items():
+        if n in state_dict.keys():
+            state_dict[n].copy_(p)
+        else:
+            raise KeyError(n)
+    uppermodel.eval()
     result_img = resize_img_tensor(
         unnormalize_img_tensor(transfer_model.generated_image[0]).clamp(0, 1),
         content_size,
     )
-    save_img_from_tensor(result_img, output_file_path)
+    result_img_np = result_img.detach().cpu().numpy().transpose(1, 2, 0)
+    result_img = pil_image.fromarray((result_img_np * 255).astype(np.uint8))
+
+
+    result_image_width = (result_img.width // scale) * scale
+    result_image_height = (result_img.height // scale) * scale
+    result_img = result_img.resize((result_image_width, result_image_height), resample=pil_image.BICUBIC)
+    result_img = result_img.resize((result_img.width // scale, result_img.height // scale), resample=pil_image.BICUBIC)
+    result_img = result_img.resize((result_img.width * scale, result_img.height *scale), resample=pil_image.BICUBIC)
+
+    result_img = np.array(result_img).astype(np.float32)
+    ycbcr = convert_rgb_to_ycbcr(result_img)
+
+    y = ycbcr[..., 0]
+    y /= 255.
+    y = torch.from_numpy(y).to(device)
+    y = y.unsqueeze(0).unsqueeze(0)
+
+    with torch.no_grad():
+        preds = uppermodel(y).clamp(0.0, 1.0)
+
+    # psnr = calc_psnr(y, preds)
+    # print('PSNR: {:.2f}'.format(psnr))
+
+    preds = preds.mul(255.0).cpu().numpy().squeeze(0).squeeze(0)
+
+    result_img = np.array([preds, ycbcr[..., 1], ycbcr[..., 2]]).transpose([1, 2, 0])
+    result_img = np.clip(convert_ycbcr_to_rgb(result_img), 0.0, 255.0).astype(np.uint8)
+    result_img = pil_image.fromarray(result_img)
+    result_img.save(output_file_path)
 
 
 if __name__ == "__main__":
