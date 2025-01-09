@@ -85,13 +85,17 @@ def main():
             style_layer_weights=style_layer_weights,
         )
     elif model_type == "lapstyle":
-        feature_extractor = VGGFeatureExtractor()
+        feature_extractor = VGGFeatureExtractor(
+            content_layers=content_layers, style_layers=style_layers
+        )
         gatsy_model = GatysStyleTransferModel(
             feature_extractor,
             content_image,
             style_image,
             content_weight=content_weight,
             style_weight=style_weight,
+            content_layer_weights=content_layer_weights,
+            style_layer_weights=style_layer_weights,
         )
         kernel_size: int = json_loader.load("pool_size")
         lap_weight: float = json_loader.load("lap_weight")
