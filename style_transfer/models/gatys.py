@@ -3,7 +3,6 @@
 from functools import cached_property
 from typing import List, override
 import torch
-from torch import nn
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.feature_extractor import FeatureExtractor
 
@@ -15,6 +14,8 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
     __content_weight: float
     __style_weight: float
     __feature_extractor: FeatureExtractor
+    __content_layer_weights: List[float]
+    __style_layer_weights: List[float]
 
     def __init__(
         self,
@@ -36,10 +37,10 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         super().__init__()
         self._content_image = content_image
         self._style_image = style_image
-        content_weight = kwargs.get("content_weight", 1e4)
-        style_weight = kwargs.get("style_weight", 1e-2)
-        self.__content_weight = content_weight
-        self.__style_weight = style_weight
+        self.__content_weight = kwargs.get("content_weight", 1e4)
+        self.__style_weight = kwargs.get("style_weight", 1e-2)
+        self.__content_layer_weights = kwargs.get("content_layer_weights", None)
+        self.__style_layer_weights = kwargs.get("style_layer_weights", None)
         self.__feature_extractor = feature_extractor
         self.generated_image = content_image.clone().requires_grad_(True)
         self._content_image = content_image
@@ -68,52 +69,18 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         content_features, style_features = self.__feature_extractor.extract_features(
             self.generated_image
         )
-        content_loss = self.__compute_content_loss(
-            self.cached_content_features, content_features
+        content_loss = self._compute_loss(
+            self.cached_content_features,
+            content_features,
+            weight_list=self.__content_layer_weights,
         )
-        style_loss = self.__compute_style_loss(
-            self.cached_style_features, style_features
+        style_loss = self._compute_loss(
+            self.cached_style_features,
+            style_features,
+            weight_list=self.__style_layer_weights,
         )
         loss = self.__content_weight * content_loss + self.__style_weight * style_loss
         return loss
-
-    @staticmethod
-    def __compute_content_loss(
-        content_features: List[torch.Tensor], generated_features: List[torch.Tensor]
-    ) -> torch.Tensor:
-        """计算内容损失
-
-        Args:
-            content_features: 内容特征列表
-            generated_features: 生成的特征列表
-
-        Returns:
-            torch.Tensor: 内容损失
-        """
-        loss = 0.0
-        for content_feature, generated_feature in zip(
-            content_features, generated_features
-        ):
-            loss += nn.MSELoss()(content_feature, generated_feature)
-        return loss / len(content_features)
-
-    @staticmethod
-    def __compute_style_loss(
-        style_features: List[torch.Tensor], generated_features: List[torch.Tensor]
-    ) -> torch.Tensor:
-        """计算风格损失
-
-        Args:
-            style_features: 风格特征列表
-            generated_features: 生成的特征列表
-
-        Returns:
-            torch.Tensor: 风格损失
-        """
-        loss = 0.0
-        for style_feature, generated_feature in zip(style_features, generated_features):
-            loss += nn.MSELoss()(style_feature, generated_feature)
-        return loss / len(style_features)
 
     @cached_property
     def cached_content_features(self) -> List[torch.Tensor]:

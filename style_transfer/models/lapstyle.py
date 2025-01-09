@@ -9,7 +9,7 @@ from style_transfer.models.neural_style_transfer_decorator import (
 )
 
 
-class LapStyleTransferModel(NeuralStyleTransferDecorator):
+class LapstyleTransferModel(NeuralStyleTransferDecorator):
     """Laplacian风格迁移模型"""
 
     __kernel_size: int
@@ -31,23 +31,8 @@ class LapStyleTransferModel(NeuralStyleTransferDecorator):
         lap_features = self.__compute_laplacian_feature(
             self._model.generated_image, self.__kernel_size
         )
-        lap_loss = self.__compute_laplacian_loss(self.cached_lap_features, lap_features)
+        lap_loss = self._compute_loss([self.cached_lap_features], [lap_features])
         return content_and_style_loss_with_weight + self.__lap_weight * lap_loss
-
-    @staticmethod
-    def __compute_laplacian_loss(
-        lap_features: torch.Tensor, generated_features: torch.Tensor
-    ) -> torch.Tensor:
-        """计算拉普拉斯损失
-
-        Args:
-            lap_features: 拉普拉斯特征
-            generated_features: 生成特征
-
-        Returns:
-            torch.Tensor: 拉普拉斯损失
-        """
-        return F.mse_loss(lap_features, generated_features)
 
     @staticmethod
     def __compute_laplacian_feature(

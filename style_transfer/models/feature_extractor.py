@@ -5,6 +5,7 @@ from typing import List, Tuple, override
 import torch
 from torch import nn
 import torchvision.models
+from style_transfer.utils.model_utils import compute_gama_matrix
 
 
 class FeatureExtractor(ABC):
@@ -24,21 +25,6 @@ class FeatureExtractor(ABC):
             图像张量的形状为(N, C, H, W)，其中 N 为 1
             风格特征是Gram矩阵，形状为(N, C, C)，其中 N 为 1
         """
-
-    @staticmethod
-    def _compute_gama_matrix(features: torch.Tensor) -> torch.Tensor:
-        """计算Gram矩阵
-
-        Args:
-            features: 特征，shape: (n, c, h, w)
-
-        Returns:
-            torch.Tensor: Gram矩阵，shape: (n, c, c)
-        """
-        n, c, h, w = features.shape
-        features = features.view(n, c, h * w)
-        gama_matrix = torch.bmm(features, features.transpose(1, 2))
-        return gama_matrix
 
     @abstractmethod
     def to(self, device: torch.device) -> "FeatureExtractor":
@@ -102,12 +88,15 @@ class VGGFeatureExtractor(FeatureExtractor):
         """
         content_features, style_features = [], []
         x = image_tensor
+        original_size = x.numel()
         for i, layer in enumerate(self.__vgg19):
             x = layer(x)
             if i in self.__content_layers:
                 content_features.append(x)
             if i in self.__style_layers:
-                # 论文中事实上这里需要除以一个常数，即四倍的特征图大小的平方和滤波器个数的平方
-                # 但考虑到最后我们需要对风格损失加权，所以这里省略了这个常数
-                style_features.append(self._compute_gama_matrix(x))
+                # 论文中事实上还应该除以2,但考虑到我们还要对损失加权，所以这里略去
+                # 乘以original_size是为了防止梯度消失，也便于调整权重
+                style_features.append(
+                    compute_gama_matrix(x) * original_size / x.numel()
+                )
         return content_features, style_features

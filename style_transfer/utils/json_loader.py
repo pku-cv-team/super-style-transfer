@@ -1,21 +1,20 @@
 """Json加载器，用于加载json文件"""
 
 import json
-from style_transfer.utils.func_utils import my_not_none
+import logging
 
 
+# pylint: disable=too-few-public-methods
 class JsonLoader:
     """Json加载器"""
 
     def __init__(self, json_path):
-        self.json_path = json_path
+        with open(json_path, encoding="utf-8") as json_file:
+            self.__json_obj = json.load(json_file)
 
     def load(self, key):
         """加载json文件中的key对应的值"""
-        with open(self.json_path, encoding="utf-8") as json_file:
-            return json.load(json_file)[key]
-
-    @my_not_none
-    def load_not_none(self, key):
-        """加载json文件中的key对应的值，如果为None则抛出异常"""
-        return self.load(key)
+        if key in self.__json_obj:
+            return self.__json_obj[key]
+        logging.warning("Key %s not found in json file.", key)
+        return None

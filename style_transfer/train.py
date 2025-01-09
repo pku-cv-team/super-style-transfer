@@ -14,7 +14,7 @@ from style_transfer.utils.json_loader import JsonLoader
 from style_transfer.models.feature_extractor import VGGFeatureExtractor
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.gatys import GatysStyleTransferModel
-from style_transfer.models.lapstyle import LapStyleTransferModel
+from style_transfer.models.lapstyle import LapstyleTransferModel
 
 
 def train(
@@ -49,12 +49,12 @@ def main():
     config_path: str = args.config
     json_loader: JsonLoader = JsonLoader(config_path)
     model_type: str = json_loader.load("model")
+    content_image = read_img_to_tensor(json_loader.load("content_image"))
+    style_image = read_img_to_tensor(json_loader.load("style_image"))
     image_size: Tuple[int, int] = (
         json_loader.load("image_height"),
         json_loader.load("image_width"),
     )
-    content_image = read_img_to_tensor(json_loader.load("content_image"))
-    style_image = read_img_to_tensor(json_loader.load("style_image"))
     content_size: Tuple[int, int] = content_image.shape[-2:]
     content_image, style_image = resize_img_tensor(
         content_image, image_size
@@ -66,28 +66,40 @@ def main():
     style_weight: float = json_loader.load("style_weight")
     content_image.requires_grad = False
     style_image.requires_grad = False
+    content_layers = json_loader.load("content_layers")
+    style_layers = json_loader.load("style_layers")
+    content_layer_weights = json_loader.load("content_layer_weights")
+    style_layer_weights = json_loader.load("style_layer_weights")
     transfer_model = None
     if model_type == "gatys":
-        feature_extractor = VGGFeatureExtractor()
+        feature_extractor = VGGFeatureExtractor(
+            content_layers=content_layers, style_layers=style_layers
+        )
         transfer_model = GatysStyleTransferModel(
             feature_extractor,
             content_image,
             style_image,
             content_weight=content_weight,
             style_weight=style_weight,
+            content_layer_weights=content_layer_weights,
+            style_layer_weights=style_layer_weights,
         )
     elif model_type == "lapstyle":
-        feature_extractor = VGGFeatureExtractor()
+        feature_extractor = VGGFeatureExtractor(
+            content_layers=content_layers, style_layers=style_layers
+        )
         gatsy_model = GatysStyleTransferModel(
             feature_extractor,
             content_image,
             style_image,
             content_weight=content_weight,
             style_weight=style_weight,
+            content_layer_weights=content_layer_weights,
+            style_layer_weights=style_layer_weights,
         )
         kernel_size: int = json_loader.load("pool_size")
         lap_weight: float = json_loader.load("lap_weight")
-        transfer_model = LapStyleTransferModel(
+        transfer_model = LapstyleTransferModel(
             gatsy_model, kernel_size=kernel_size, lap_weight=lap_weight
         )
     else:
