@@ -157,10 +157,8 @@ def scale_img_numpy(image_numpy: np.ndarray, size: Tuple[int, int]):
         raise cv2.error("Invalid size")
     gaussian_pyramid = [image_numpy]
     while size_greater_than_or_equal_to_required(image_numpy=image_numpy, size=size):
-        print(image_numpy.shape)
         image_numpy = cv2.pyrDown(image_numpy)
         gaussian_pyramid.append(image_numpy)
-        print(image_numpy.shape)
 
     if len(gaussian_pyramid) <= 1:
         return cv2.resize(image_numpy, size), lambda x: cv2.resize(
@@ -210,4 +208,4 @@ def scale_img_tensor(image_tensor: torch.Tensor, size: Tuple[int, int]):
     image_tensor = torch.from_numpy(image_numpy.transpose(2, 0, 1))
     return image_tensor, lambda x: torch.from_numpy(
         restore_size(x.numpy().transpose(1, 2, 0))
-    ).transpose(2, 0, 1)
+    ).permute(2, 0, 1)
