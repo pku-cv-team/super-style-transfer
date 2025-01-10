@@ -1,7 +1,7 @@
 {
   "model": "gatys",
-  "content_image": "data/raw/content/building.png",
-  "style_image": "data/raw/style/VanGogh.png",
+  "content_image": "data/raw/content/cambridge.jpg",
+  "style_image": "data/raw/style/starry_night.jpg",
   "output_image": "experiments/results/gatys/01.jpg",
   "image_height": 300,
   "image_width": 300,

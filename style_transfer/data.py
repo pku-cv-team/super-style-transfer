@@ -179,6 +179,10 @@ def scale_img_numpy(image_numpy: np.ndarray, size: Tuple[int, int]):
 
     def restore_size(processed_image_numpy: np.ndarray):
         """恢复尺寸"""
+        # 如果要取消通过金字塔恢复图像，可以取消下面语句的注释
+        # return cv2.resize(
+        #     processed_image_numpy, gaussian_pyramid[0].shape[0:2]
+        # ).transpose(1, 0, 2)
         if gaussian_pyramid[-1].shape[0:2] != processed_image_numpy.shape[0:2]:
             processed_image_numpy = cv2.resize(
                 processed_image_numpy, gaussian_pyramid[-1].shape[0:2]
