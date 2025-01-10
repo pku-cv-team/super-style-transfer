@@ -159,7 +159,6 @@ def scale_img_numpy(image_numpy: np.ndarray, size: Tuple[int, int]):
     while size_greater_than_or_equal_to_required(image_numpy=image_numpy, size=size):
         image_numpy = cv2.pyrDown(image_numpy)
         gaussian_pyramid.append(image_numpy)
-        print(image_numpy.shape)
 
     if len(gaussian_pyramid) <= 1:
         return cv2.resize(image_numpy, size), lambda x: cv2.resize(
@@ -171,26 +170,19 @@ def scale_img_numpy(image_numpy: np.ndarray, size: Tuple[int, int]):
 
     for i in range(len(gaussian_pyramid) - 1, 0, -1):
         expand = cv2.pyrUp(gaussian_pyramid[i])
-        print(expand.shape, gaussian_pyramid[i - 1].shape)
         if expand.shape[0:2] != gaussian_pyramid[i - 1].shape[0:2]:
-            print("Before", expand.shape)
             expand = cv2.resize(expand, gaussian_pyramid[i - 1].shape[0:2]).transpose(
                 1, 0, 2
             )
-            print("After", expand.shape)
         laplacian = cv2.subtract(gaussian_pyramid[i - 1], expand)
         laplacian_pyramid.append(laplacian)
 
-    print("shape of laplacian pyramid", [x.shape for x in laplacian_pyramid])
-
     def restore_size(processed_image_numpy: np.ndarray):
         """恢复尺寸"""
-        print("shape of processed image", processed_image_numpy.shape)
         if gaussian_pyramid[-1].shape[0:2] != processed_image_numpy.shape[0:2]:
             processed_image_numpy = cv2.resize(
                 processed_image_numpy, gaussian_pyramid[-1].shape[0:2]
             ).transpose(1, 0, 2)
-        print("shape of processed image after resize", processed_image_numpy.shape)
         for laplacian in laplacian_pyramid:
             processed_image_numpy = cv2.pyrUp(processed_image_numpy)
             if processed_image_numpy.shape[0:2] != laplacian.shape[0:2]:
@@ -198,7 +190,6 @@ def scale_img_numpy(image_numpy: np.ndarray, size: Tuple[int, int]):
                     processed_image_numpy, laplacian.shape[0:2]
                 ).transpose(1, 0, 2)
             processed_image_numpy = cv2.add(processed_image_numpy, laplacian)
-            print("shape of processed image after add", processed_image_numpy.shape)
         return processed_image_numpy
 
     if gaussian_pyramid[-1].shape[0:2] != size:
