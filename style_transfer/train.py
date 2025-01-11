@@ -18,10 +18,10 @@ from style_transfer.models.tv_decorator import TvDecorator
 
 
 def train(
-        transfer_model: NeuralStyleTransferModel,
-        iterations: int,
-        optimzer: torch.optim,
-        scheduler: torch.optim.lr_scheduler
+    transfer_model: NeuralStyleTransferModel,
+    iterations: int,
+    optimzer: torch.optim,
+    scheduler: torch.optim.lr_scheduler,
 ):
     """训练风格迁移模型
 
@@ -34,6 +34,7 @@ def train(
     torch.autograd.set_detect_anomaly(True)
     i = 0
     while i <= iterations:
+
         def closure():
             nonlocal i
             optimzer.zero_grad()
@@ -49,6 +50,7 @@ def train(
 
 # 这是主函数，需要从配置文件读取很多内容，因此局部变量较多，我不知道如何避免，暂时先这样
 # pylint: disable=too-many-locals
+# pylint: disable=too-many-statements
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(description="Train style transfer model.")
@@ -151,13 +153,16 @@ def main():
     optimizer_type = json_loader.load("optimizer")
     optimizer = None
     if optimizer_type == "LBFGS":
-        optimizer = torch.optim.LBFGS([transfer_model.generated_image], lr=learning_rate)
+        optimizer = torch.optim.LBFGS(
+            [transfer_model.generated_image], lr=learning_rate
+        )
     elif optimizer_type == "Adam":
         optimizer = torch.optim.Adam([transfer_model.generated_image], lr=learning_rate)
     else:
         raise ValueError("Unsupported optimizer type.")
     scheduler: torch.optim.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-        optimizer, iterations)
+        optimizer, iterations
+    )
     train(transfer_model, iterations, optimizer, scheduler)
     output_file_path = json_loader.load("output_image")
     result_img = content_image_resizer.restore_from(

@@ -38,7 +38,7 @@ class TvDecorator(NeuralStyleTransferDecorator):
             float: 全变分损失
         """
         tv_loss = 0.5 * (
-                torch.abs(image[:, :, 1:, :] - image[:, :, :-1, :]).mean()
-                + torch.abs(image[:, :, :, 1:] - image[:, :, :, :-1]).mean()
+            torch.abs(image[:, :, 1:, :] - image[:, :, :-1, :]).mean()
+            + torch.abs(image[:, :, :, 1:] - image[:, :, :, :-1]).mean()
         )
         return tv_loss
