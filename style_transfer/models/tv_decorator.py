@@ -28,9 +28,7 @@ class TvDecorator(NeuralStyleTransferDecorator):
         return content_and_style_loss_with_weight + self.__tv_weight * tv_loss
 
     @staticmethod
-    def __compute_tv_loss(
-            image: torch.Tensor
-    ) -> torch.Tensor:
+    def __compute_tv_loss(image: torch.Tensor) -> torch.Tensor:
         """计算全变分损失
 
         Args:
@@ -39,6 +37,8 @@ class TvDecorator(NeuralStyleTransferDecorator):
         Returns:
             float: 全变分损失
         """
-        tv_loss = 0.5 * (torch.abs(image[:, :, 1:, :] - image[:, :, :-1, :]).mean()
-                         + torch.abs(image[:, :, :, 1:] - image[:, :, :, :-1]).mean())
+        tv_loss = 0.5 * (
+                torch.abs(image[:, :, 1:, :] - image[:, :, :-1, :]).mean()
+                + torch.abs(image[:, :, :, 1:] - image[:, :, :, :-1]).mean()
+        )
         return tv_loss

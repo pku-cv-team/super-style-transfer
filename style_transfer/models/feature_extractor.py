@@ -88,7 +88,7 @@ class VGGFeatureExtractor(FeatureExtractor):
         """
         content_features, style_features = [], []
         x = image_tensor
-        original_size = x.numel()
+        # original_size = x.numel()
         for i, layer in enumerate(self.__vgg19):
             x = layer(x)
             if i in self.__content_layers:
@@ -98,6 +98,7 @@ class VGGFeatureExtractor(FeatureExtractor):
                 # 乘以original_size是为了防止梯度消失，也便于调整权重
                 style_features.append(
                     # compute_gama_matrix(x) * original_size / x.numel()
-                    compute_gama_matrix(x) / x.numel()
+                    compute_gama_matrix(x)
+                    / x.numel()
                 )
         return content_features, style_features

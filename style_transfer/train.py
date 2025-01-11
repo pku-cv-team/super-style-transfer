@@ -18,7 +18,9 @@ from style_transfer.models.tv_decorator import TvDecorator
 
 
 def train(
-        transfer_model: NeuralStyleTransferModel, iterations: int, optimzer: torch.optim,
+        transfer_model: NeuralStyleTransferModel,
+        iterations: int,
+        optimzer: torch.optim,
         scheduler: torch.optim.lr_scheduler
 ):
     """训练风格迁移模型
@@ -149,16 +151,13 @@ def main():
     optimizer_type = json_loader.load("optimizer")
     optimizer = None
     if optimizer_type == "LBFGS":
-        optimizer = torch.optim.LBFGS(
-            [transfer_model.generated_image], lr=learning_rate
-        )
+        optimizer = torch.optim.LBFGS([transfer_model.generated_image], lr=learning_rate)
     elif optimizer_type == "Adam":
-        optimizer = torch.optim.Adam(
-            [transfer_model.generated_image], lr=learning_rate
-        )
+        optimizer = torch.optim.Adam([transfer_model.generated_image], lr=learning_rate)
     else:
         raise ValueError("Unsupported optimizer type.")
-    scheduler: torch.optim.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, iterations)
+    scheduler: torch.optim.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, iterations)
     train(transfer_model, iterations, optimizer, scheduler)
     output_file_path = json_loader.load("output_image")
     result_img = content_image_resizer.restore_from(
