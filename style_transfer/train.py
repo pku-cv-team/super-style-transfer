@@ -15,10 +15,11 @@ from style_transfer.models.feature_extractor import VGGFeatureExtractor
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.gatys import GatysStyleTransferModel
 from style_transfer.models.lapstyle import LapstyleTransferModel
-
+from style_transfer.models.gatys_with_tv import GatysWithTvTransferModel
 
 def train(
-    transfer_model: NeuralStyleTransferModel, iterations: int, optimzer: torch.optim
+        transfer_model: NeuralStyleTransferModel, iterations: int, optimzer: torch.optim,
+        scheduler: torch.optim.lr_scheduler
 ):
     """训练风格迁移模型
 
@@ -34,6 +35,7 @@ def train(
         loss = transfer_model.forward()
         loss.backward()
         optimzer.step()
+        scheduler.step()
         print(f"iteration: {i}, loss: {loss.item()}")
 
 
@@ -102,6 +104,23 @@ def main():
         transfer_model = LapstyleTransferModel(
             gatsy_model, kernel_size=kernel_size, lap_weight=lap_weight
         )
+    elif model_type == "gatys_with_tv":
+        feature_extractor = VGGFeatureExtractor(
+            content_layers=content_layers, style_layers=style_layers
+        )
+        gatsy_model = GatysStyleTransferModel(
+            feature_extractor,
+            content_image,
+            style_image,
+            content_weight=content_weight,
+            style_weight=style_weight,
+            content_layer_weights=content_layer_weights,
+            style_layer_weights=style_layer_weights,
+        )
+        tv_weight: float = json_loader.load("tv_weight")
+        transfer_model = GatysWithTvTransferModel(
+            gatsy_model, tv_weight=tv_weight
+        )
     else:
         raise ValueError("Unsupported model type.")
     iterations: int = json_loader.load("iterations")
@@ -117,7 +136,8 @@ def main():
     optimizer: torch.optim = torch.optim.Adam(
         [transfer_model.generated_image], lr=learning_rate
     )
-    train(transfer_model, iterations, optimizer)
+    scheduler: torch.optim.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, iterations)
+    train(transfer_model, iterations, optimizer, scheduler)
     output_file_path = json_loader.load("output_image")
     result_img = resize_img_tensor(
         unnormalize_img_tensor(transfer_model.generated_image[0]).clamp(0, 1),

@@ -1,0 +1,18 @@
+{
+  "model": "gatys_with_tv",
+  "content_image": "data/raw/content/dancing.jpg",
+  "style_image": "data/raw/style/picasso.jpg",
+  "output_image": "experiments/results/gatys/01.jpg",
+  "image_height": 224,
+  "image_width": 224,
+  "content_weight": 1e3,
+  "style_weight": 5e5,
+  "tv_weight": 1e2,
+  "learning_rate": 0.1,
+  "iterations": 500,
+  "device": "cuda",
+  "content_layers": [22, 31],
+  "content_layer_weights": [0.5, 0.5],
+  "style_layers": [1, 6, 11, 20, 29],
+  "style_layer_weights": [0.1, 0.1, 0.2, 0.3, 0.3]
+}
