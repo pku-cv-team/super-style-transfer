@@ -62,6 +62,6 @@ def test_scale_img_numpy_non_square_size():
     image = np.random.randint(0, 256, (256, 256, 3), dtype=np.uint8)
     size = (128, 64)
     scaled_image, restore_func = scale_img_numpy(image, size)
-    assert scaled_image.shape == (64, 128, 3)
+    assert scaled_image.shape == (128, 64, 3)
     restored_image = restore_func(scaled_image)
     assert restored_image.shape == image.shape

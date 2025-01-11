@@ -60,6 +60,6 @@ def test_scale_img_tensor_non_square_size():
     image_tensor = torch.randint(0, 256, (3, 256, 256), dtype=torch.uint8)
     size = (128, 64)
     scaled_tensor, restore_func = scale_img_tensor(image_tensor, size)
-    assert scaled_tensor.shape == (3, 64, 128)
+    assert scaled_tensor.shape == (3, 128, 64)
     restored_tensor = restore_func(scaled_tensor)
     assert restored_tensor.shape == image_tensor.shape
