@@ -4,7 +4,6 @@
 
 import json
 from unittest.mock import mock_open, patch
-import pytest
 from style_transfer.utils.json_loader import JsonLoader
 
 
@@ -22,8 +21,7 @@ def test_load_invalid_key():
     json_data = {"name": "John", "age": 30}
     with patch("builtins.open", mock_open(read_data=json.dumps(json_data))):
         loader = JsonLoader("fake_path.json")
-        with pytest.raises(KeyError):
-            loader.load("address")
+        assert loader.load("address") is None
 
 
 def test_load_empty_json():
@@ -31,5 +29,4 @@ def test_load_empty_json():
     json_data = {}
     with patch("builtins.open", mock_open(read_data=json.dumps(json_data))):
         loader = JsonLoader("fake_path.json")
-        with pytest.raises(KeyError):
-            loader.load("name")
+        assert loader.load("name") is None
