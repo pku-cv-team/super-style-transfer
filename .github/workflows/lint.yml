@@ -11,6 +11,10 @@ on:
     branches:
       - main
 
+permissions:
+  checks: write
+  contents: write
+
 jobs:
   run-linters:
     name: Run linters
@@ -32,4 +36,6 @@ jobs:
         uses: wearerequired/lint-action@v2
         with:
           black: true
+          black_auto_fix: true
           pylint: true
+          pylint_args: "--disable=import-error"

@@ -16,8 +16,9 @@ from style_transfer.models.gatys import GatysStyleTransferModel
 from style_transfer.models.lapstyle import LapstyleTransferModel
 
 
+
 def train(
-    transfer_model: NeuralStyleTransferModel, iterations: int, optimzer: torch.optim
+    transfer_model: NeuralStyleTransferModel, iterations: int, optimizer: torch.optim
 ):
     """训练风格迁移模型
 
@@ -28,13 +29,13 @@ def train(
         torch.Tensor: 生成图像
     """
     torch.autograd.set_detect_anomaly(True)
+    torch.autograd.set_detect_anomaly(True)
     for i in range(iterations):
-        optimzer.zero_grad()
+        optimizer.zero_grad()
         loss = transfer_model.forward()
         loss.backward()
-        optimzer.step()
+        optimizer.step()
         print(f"iteration: {i}, loss: {loss.item()}")
-
 
 # 这是主函数，需要从配置文件读取很多内容，因此局部变量较多，我不知道如何避免，暂时先这样
 # pylint: disable=too-many-locals
@@ -122,7 +123,7 @@ def main():
     transfer_model = transfer_model.to(device)
     # TODO(NOT_SPECIFIC_ONE) 原论文中使用的是L-BFGS优化器，这里使用Adam优化器，在后续开发中应该考虑使用L-BFGS优化器
     # 这并不容易，你可能需要考虑创建新的子模块，直接在这里添加代码可能会使得这段代码变得复杂，难以维护
-    optimizer: torch.optim = torch.optim.Adam(
+    optimizer: torch.optim = torch.optim.AdamW(
         [transfer_model.generated_image], lr=learning_rate
     )
     train(transfer_model, iterations, optimizer)
