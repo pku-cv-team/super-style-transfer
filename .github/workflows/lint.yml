@@ -30,10 +30,12 @@ jobs:
           python-version: 3.12
 
       - name: Install Python dependencies
-        run: pip install black pylint matplotlib pytest pytorch torchvision torchaudio opencv-python
+        run: pip install black pylint
 
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
           black: true
+          black_auto_fix: true
           pylint: true
+          pylint_args: "--disable=import-error"
