@@ -129,7 +129,10 @@ def main():
     train(transfer_model, iterations, optimizer)
     output_file_path = json_loader.load("output_image")
     result_img = content_image_resizer.restore_from(
-        unnormalize_img_tensor(transfer_model.generated_image[0]).cpu().detach()
+        unnormalize_img_tensor(transfer_model.generated_image[0])
+        .cpu()
+        .detach()
+        .clamp(0, 1)
     ).clamp(0, 1)
     save_img_from_tensor(result_img, output_file_path)
 

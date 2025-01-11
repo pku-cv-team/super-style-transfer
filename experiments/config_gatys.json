@@ -13,7 +13,9 @@
   "style_layers": [1, 6, 11, 20, 29],
   "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
   "resize_stragety": {
-    "type": "trivial",
-    "size": [300, 300]
+    "type": "srcnn",
+    "size": [300, 300],
+    "model_path": "style_transfer/srcnn_x3.pth",
+    "scale": 3
   }
 }

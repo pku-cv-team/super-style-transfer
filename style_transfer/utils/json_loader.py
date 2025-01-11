@@ -37,4 +37,17 @@ class JsonLoader:
             return {"type": stragety_type, "size": size}
         if stragety_type == "pyrimid":
             return {"type:": stragety_type, "size": size}
+        if stragety_type == "srcnn":
+            if "scale" not in stragety:
+                raise ValueError("Resize stragety srcnn should have scale.")
+            scale = stragety["scale"]
+            if "model_path" not in stragety:
+                raise ValueError("Resize stragety srcnn should have model_path.")
+            model_path = stragety["model_path"]
+            return {
+                "type": stragety_type,
+                "size": size,
+                "scale": scale,
+                "model_path": model_path,
+            }
         raise ValueError("Unsupported stragety")
