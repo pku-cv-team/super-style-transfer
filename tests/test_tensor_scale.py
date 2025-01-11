@@ -3,7 +3,7 @@
 import torch
 import pytest
 
-from style_transfer.data import scale_img_tensor
+from style_transfer.utils.image_resizer import scale_img_tensor
 
 
 # 测试用例

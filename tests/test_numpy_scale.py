@@ -3,7 +3,7 @@
 import numpy as np
 import cv2
 import pytest
-from style_transfer.data import scale_img_numpy
+from style_transfer.utils.image_resizer import scale_img_numpy
 
 
 def test_scale_img_numpy_normal():

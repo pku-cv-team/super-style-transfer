@@ -7,13 +7,13 @@ import numpy as np
 # SR方法为什么只对于Y通道进行处理，因为人眼对于像素的亮度更加敏感
 def convert_rgb_to_y(img):
     """将RGB图像转换为Y通道图像"""
-    if img.isinstance(np.ndarray):
+    if isinstance(img, np.ndarray):
         return (
             16.0
             + (64.738 * img[:, :, 0] + 129.057 * img[:, :, 1] + 25.064 * img[:, :, 2])
             / 256.0
         )
-    if img.isinstance(torch.Tensor):
+    if isinstance(img, torch.Tensor):
         if len(img.shape) == 4:
             img = img.squeeze(0)
         return (
@@ -27,7 +27,7 @@ def convert_rgb_to_y(img):
 # 得到RGB转化为YCBCR的格式，和论文对齐
 def convert_rgb_to_ycbcr(img):
     """将RGB图像转换为YCBCR图像"""
-    if img.isinstance(np.ndarray):
+    if isinstance(img, np.ndarray):
         y = (
             16.0
             + (64.738 * img[:, :, 0] + 129.057 * img[:, :, 1] + 25.064 * img[:, :, 2])
@@ -44,7 +44,7 @@ def convert_rgb_to_ycbcr(img):
             / 256.0
         )
         return np.array([y, cb, cr]).transpose([1, 2, 0])
-    if img.isinstance(torch.Tensor):
+    if isinstance(img, torch.Tensor):
         if len(img.shape) == 4:
             img = img.squeeze(0)
         y = (
@@ -69,7 +69,7 @@ def convert_rgb_to_ycbcr(img):
 # 将YCBCR转化为RGB
 def convert_ycbcr_to_rgb(img):
     """将YCBCR图像转换为RGB图像"""
-    if img.isinstance(np.ndarray):
+    if isinstance(img, np.ndarray):
         r = 298.082 * img[:, :, 0] / 256.0 + 408.583 * img[:, :, 2] / 256.0 - 222.921
         g = (
             298.082 * img[:, :, 0] / 256.0
@@ -79,7 +79,7 @@ def convert_ycbcr_to_rgb(img):
         )
         b = 298.082 * img[:, :, 0] / 256.0 + 516.412 * img[:, :, 1] / 256.0 - 276.836
         return np.array([r, g, b]).transpose([1, 2, 0])
-    if img.isinstance(torch.Tensor):
+    if isinstance(img, torch.Tensor):
         if len(img.shape) == 4:
             img = img.squeeze(0)
         r = 298.082 * img[0, :, :] / 256.0 + 408.583 * img[2, :, :] / 256.0 - 222.921

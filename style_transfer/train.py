@@ -7,10 +7,9 @@ from style_transfer.data import (
     save_img_from_tensor,
     normalize_img_tensor,
     unnormalize_img_tensor,
-    ImageResizer,
-    image_resizer_creater,
 )
 from style_transfer.utils.json_loader import JsonLoader
+from style_transfer.utils.image_resizer import image_resizer_creater
 from style_transfer.models.feature_extractor import VGGFeatureExtractor
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.gatys import GatysStyleTransferModel
@@ -56,8 +55,8 @@ def main():
 
     # 加载图像大小调整器
     resize_stragety: dict = json_loader.load_resize_stragety()
-    content_image_resizer: ImageResizer = image_resizer_creater(resize_stragety)
-    style_image_resizer: ImageResizer = image_resizer_creater(resize_stragety)
+    content_image_resizer = image_resizer_creater(resize_stragety)
+    style_image_resizer = image_resizer_creater(resize_stragety)
 
     # 调整图像大小
     content_image = content_image_resizer.resize_to(content_image)
