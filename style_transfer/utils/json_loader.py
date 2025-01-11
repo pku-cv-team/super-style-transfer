@@ -5,7 +5,6 @@ import logging
 from style_transfer.utils.func_utils import my_not_none
 
 
-# pylint: disable=too-few-public-methods
 class JsonLoader:
     """Json加载器"""
 

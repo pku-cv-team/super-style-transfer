@@ -49,20 +49,32 @@ def main():
     config_path: str = args.config
     json_loader: JsonLoader = JsonLoader(config_path)
     model_type: str = json_loader.load("model")
+
+    # 加载图片
     content_image = read_img_to_tensor(json_loader.load("content_image"))
     style_image = read_img_to_tensor(json_loader.load("style_image"))
+
+    # 加载图像大小调整器
     resize_stragety: dict = json_loader.load_resize_stragety()
     content_image_resizer: ImageResizer = image_resizer_creater(resize_stragety)
     style_image_resizer: ImageResizer = image_resizer_creater(resize_stragety)
+
+    # 调整图像大小
     content_image = content_image_resizer.resize_to(content_image)
     style_image = style_image_resizer.resize_to(style_image)
+
+    # 图像处理
     content_image, style_image = normalize_img_tensor(content_image).unsqueeze(
         0
     ), normalize_img_tensor(style_image).unsqueeze(0)
-    content_weight: float = json_loader.load("content_weight")
-    style_weight: float = json_loader.load("style_weight")
     content_image.requires_grad = False
     style_image.requires_grad = False
+
+    # 加载权重
+    content_weight: float = json_loader.load("content_weight")
+    style_weight: float = json_loader.load("style_weight")
+
+    # 加载特征提取器及创建风格迁移模型
     content_layers = json_loader.load("content_layers")
     style_layers = json_loader.load("style_layers")
     content_layer_weights = json_loader.load("content_layer_weights")
