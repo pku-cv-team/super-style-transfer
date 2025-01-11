@@ -7,7 +7,7 @@ from style_transfer.models.neural_style_transfer_decorator import (
 )
 
 
-class GatysWithTvTransferModel(NeuralStyleTransferDecorator):
+class TvDecorator(NeuralStyleTransferDecorator):
     """Laplacian风格迁移模型"""
 
     __tv_weight: float

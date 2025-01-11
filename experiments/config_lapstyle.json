@@ -4,8 +4,9 @@
   "style_image": "data/raw/style/picasso.jpg",
   "output_image": "experiments/results/lapstyle/01.jpg",
   "content_weight": 1e3,
-  "style_weight": 3e10,
-  "learning_rate": 0.02,
+  "style_weight": 3e8,
+  "tv_weight": 1e2,
+  "learning_rate": 0.2,
   "iterations": 500,
   "device": "cuda",
   "content_layers": [22],
@@ -17,5 +18,7 @@
   "resize_stragety": {
     "type": "trivial",
     "size": [300, 300]
-  }
+  },
+  "init_strategy": "content",
+  "optimizer": "LBFGS"
 }
