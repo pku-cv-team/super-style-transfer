@@ -3,6 +3,7 @@
 from torch import nn
 
 
+# pylint: disable=too-few-public-methods
 class Srcnn(nn.Module):
     """Srcnn模型"""
 

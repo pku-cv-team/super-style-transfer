@@ -41,8 +41,8 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         self.__style_weight = kwargs.get("style_weight", 1e-2)
         self.__content_layer_weights = kwargs.get("content_layer_weights", None)
         self.__style_layer_weights = kwargs.get("style_layer_weights", None)
+        self.generated_image = kwargs.get("init_image").requires_grad_(True)
         self.__feature_extractor = feature_extractor
-        self.generated_image = content_image.clone().requires_grad_(True)
         self._content_image = content_image
         self._style_image = style_image
 

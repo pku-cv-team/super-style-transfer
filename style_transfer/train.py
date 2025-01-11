@@ -14,10 +14,14 @@ from style_transfer.models.feature_extractor import VGGFeatureExtractor
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.gatys import GatysStyleTransferModel
 from style_transfer.models.lapstyle import LapstyleTransferModel
+from style_transfer.models.tv_decorator import TvDecorator
 
 
 def train(
-    transfer_model: NeuralStyleTransferModel, iterations: int, optimzer: torch.optim
+    transfer_model: NeuralStyleTransferModel,
+    iterations: int,
+    optimzer: torch.optim,
+    scheduler: torch.optim.lr_scheduler,
 ):
     """训练风格迁移模型
 
@@ -28,16 +32,25 @@ def train(
         torch.Tensor: 生成图像
     """
     torch.autograd.set_detect_anomaly(True)
-    for i in range(iterations):
-        optimzer.zero_grad()
-        loss = transfer_model.forward()
-        loss.backward()
-        optimzer.step()
-        print(f"iteration: {i}, loss: {loss.item()}")
+    i = 0
+    while i <= iterations:
+
+        def closure():
+            nonlocal i
+            optimzer.zero_grad()
+            loss = transfer_model.forward()
+            loss.backward()
+            i += 1
+            scheduler.step()
+            print(f"iteration: {i}, loss: {loss.item()}")
+            return loss
+
+        optimzer.step(closure)
 
 
 # 这是主函数，需要从配置文件读取很多内容，因此局部变量较多，我不知道如何避免，暂时先这样
 # pylint: disable=too-many-locals
+# pylint: disable=too-many-statements
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(description="Train style transfer model.")
@@ -72,6 +85,19 @@ def main():
     # 加载权重
     content_weight: float = json_loader.load("content_weight")
     style_weight: float = json_loader.load("style_weight")
+    tv_weight: float = json_loader.load("tv_weight")
+
+    # 创建初始化图像
+    init_strategy: str = json_loader.load("init_strategy")
+    init_image = None
+    if init_strategy == "content":
+        init_image = content_image.clone()
+    elif init_strategy == "style":
+        init_image = style_image.clone()
+    elif init_strategy == "noise":
+        init_image = torch.rand(*content_image.shape)
+    else:
+        raise ValueError("Unsupported initial strategy.")
 
     # 加载特征提取器及创建风格迁移模型
     content_layers = json_loader.load("content_layers")
@@ -91,6 +117,7 @@ def main():
             style_weight=style_weight,
             content_layer_weights=content_layer_weights,
             style_layer_weights=style_layer_weights,
+            init_image=init_image,
         )
     elif model_type == "lapstyle":
         feature_extractor = VGGFeatureExtractor(
@@ -104,6 +131,7 @@ def main():
             style_weight=style_weight,
             content_layer_weights=content_layer_weights,
             style_layer_weights=style_layer_weights,
+            init_image=init_image,
         )
         kernel_size: int = json_loader.load("pool_size")
         lap_weight: float = json_loader.load("lap_weight")
@@ -112,6 +140,8 @@ def main():
         )
     else:
         raise ValueError("Unsupported model type.")
+    if tv_weight > 1e-6:
+        transfer_model = TvDecorator(transfer_model, tv_weight=tv_weight)
     iterations: int = json_loader.load("iterations")
     learning_rate: float = json_loader.load("learning_rate")
     device = torch.device(
@@ -120,12 +150,20 @@ def main():
         else "cpu"
     )
     transfer_model = transfer_model.to(device)
-    # TODO(NOT_SPECIFIC_ONE) 原论文中使用的是L-BFGS优化器，这里使用Adam优化器，在后续开发中应该考虑使用L-BFGS优化器
-    # 这并不容易，你可能需要考虑创建新的子模块，直接在这里添加代码可能会使得这段代码变得复杂，难以维护
-    optimizer: torch.optim = torch.optim.Adam(
-        [transfer_model.generated_image], lr=learning_rate
+    optimizer_type = json_loader.load("optimizer")
+    optimizer = None
+    if optimizer_type == "LBFGS":
+        optimizer = torch.optim.LBFGS(
+            [transfer_model.generated_image], lr=learning_rate
+        )
+    elif optimizer_type == "Adam":
+        optimizer = torch.optim.Adam([transfer_model.generated_image], lr=learning_rate)
+    else:
+        raise ValueError("Unsupported optimizer type.")
+    scheduler: torch.optim.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, iterations
     )
-    train(transfer_model, iterations, optimizer)
+    train(transfer_model, iterations, optimizer, scheduler)
     output_file_path = json_loader.load("output_image")
     result_img = content_image_resizer.restore_from(
         unnormalize_img_tensor(transfer_model.generated_image[0])
