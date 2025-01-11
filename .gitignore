@@ -179,3 +179,5 @@ cython_debug/
 !tests/test_img/test.jpg
 !data/raw/content/dancing.jpg
 !data/raw/style/picasso.jpg
+!data/raw/content/cambridge.jpg
+!data/raw/style/starry_night.jpg

@@ -2,7 +2,7 @@
 数据处理模块，与数据处理相关的函数、类应该在这个文件
 """
 
-from typing import List, Tuple
+from typing import List
 import torch
 from torchvision import transforms
 from PIL import Image
@@ -37,7 +37,7 @@ def normalize_img_tensor(
     """将图像张量标准化
 
     Args:
-        image_tensor (torch.Tensor): 图像张量
+        image_numpy (np.ndarray): 图像数组
         mean (List[float]): 均值
         std (List[float]): 标准差
 
@@ -107,24 +107,3 @@ def save_img_from_tensor(image_tensor: torch.Tensor, output_file: str):
     """
     image = img_tensor_to_pil(image_tensor)
     image.save(output_file)
-
-
-@my_check_return_type(torch.Tensor)
-def resize_img_tensor(
-    image_tensor: torch.Tensor, size: Tuple[int, int]
-) -> torch.Tensor:
-    """调整图像张量尺寸
-
-    Args:
-        image_tensor (torch.Tensor): 图像张量
-        size (Tuple[int, int]): 尺寸
-
-    Returns:
-        torch.Tensor: 调整后的图像张量
-    """
-    transform = transforms.Compose(
-        [
-            transforms.Resize(size),
-        ]
-    )
-    return transform(image_tensor)

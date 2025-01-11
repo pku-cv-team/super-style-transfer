@@ -1,16 +1,15 @@
 """训练风格迁移模型"""
 
 import argparse
-from typing import Tuple
 import torch
 from style_transfer.data import (
     read_img_to_tensor,
     save_img_from_tensor,
     normalize_img_tensor,
     unnormalize_img_tensor,
-    resize_img_tensor,
 )
 from style_transfer.utils.json_loader import JsonLoader
+from style_transfer.utils.image_resizer import image_resizer_creater
 from style_transfer.models.feature_extractor import VGGFeatureExtractor
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.gatys import GatysStyleTransferModel
@@ -51,23 +50,32 @@ def main():
     config_path: str = args.config
     json_loader: JsonLoader = JsonLoader(config_path)
     model_type: str = json_loader.load("model")
+
+    # 加载图片
     content_image = read_img_to_tensor(json_loader.load("content_image"))
     style_image = read_img_to_tensor(json_loader.load("style_image"))
-    image_size: Tuple[int, int] = (
-        json_loader.load("image_height"),
-        json_loader.load("image_width"),
-    )
-    content_size: Tuple[int, int] = content_image.shape[-2:]
-    content_image, style_image = resize_img_tensor(
-        content_image, image_size
-    ), resize_img_tensor(style_image, image_size)
+
+    # 加载图像大小调整器
+    resize_stragety: dict = json_loader.load_resize_stragety()
+    content_image_resizer = image_resizer_creater(resize_stragety)
+    style_image_resizer = image_resizer_creater(resize_stragety)
+
+    # 调整图像大小
+    content_image = content_image_resizer.resize_to(content_image)
+    style_image = style_image_resizer.resize_to(style_image)
+
+    # 图像处理
     content_image, style_image = normalize_img_tensor(content_image).unsqueeze(
         0
     ), normalize_img_tensor(style_image).unsqueeze(0)
-    content_weight: float = json_loader.load("content_weight")
-    style_weight: float = json_loader.load("style_weight")
     content_image.requires_grad = False
     style_image.requires_grad = False
+
+    # 加载权重
+    content_weight: float = json_loader.load("content_weight")
+    style_weight: float = json_loader.load("style_weight")
+
+    # 加载特征提取器及创建风格迁移模型
     content_layers = json_loader.load("content_layers")
     style_layers = json_loader.load("style_layers")
     content_layer_weights = json_loader.load("content_layer_weights")
@@ -139,10 +147,12 @@ def main():
     scheduler: torch.optim.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, iterations)
     train(transfer_model, iterations, optimizer, scheduler)
     output_file_path = json_loader.load("output_image")
-    result_img = resize_img_tensor(
-        unnormalize_img_tensor(transfer_model.generated_image[0]).clamp(0, 1),
-        content_size,
-    )
+    result_img = content_image_resizer.restore_from(
+        unnormalize_img_tensor(transfer_model.generated_image[0])
+        .cpu()
+        .detach()
+        .clamp(0, 1)
+    ).clamp(0, 1)
     save_img_from_tensor(result_img, output_file_path)
 
 

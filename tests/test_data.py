@@ -9,8 +9,8 @@ from style_transfer.data import (
     unnormalize_img_tensor,
     img_tensor_to_pil,
     save_img_from_tensor,
-    resize_img_tensor,
 )
+from style_transfer.utils.image_resizer import resize_img_tensor
 
 TEST_IMAGE_PATH = "tests/test_img/test.jpg"
 

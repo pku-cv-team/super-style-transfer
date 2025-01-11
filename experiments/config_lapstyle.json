@@ -2,9 +2,7 @@
   "model": "lapstyle",
   "content_image": "data/raw/content/dancing.jpg",
   "style_image": "data/raw/style/picasso.jpg",
-  "output_image": "experiments/results/lapstlye/01.jpg",
-  "image_height": 224,
-  "image_width": 224,
+  "output_image": "experiments/results/lapstyle/01.jpg",
   "content_weight": 1e3,
   "style_weight": 3e10,
   "learning_rate": 0.02,
@@ -15,5 +13,9 @@
   "style_layers": [1, 6, 11, 20, 29],
   "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
   "pool_size": 4,
-  "lap_weight": 1e-2
+  "lap_weight": 1e-2,
+  "resize_stragety": {
+    "type": "trivial",
+    "size": [300, 300]
+  }
 }
