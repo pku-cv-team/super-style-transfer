@@ -1,4 +1,4 @@
-"""添加全变分损失的Gaty模型"""
+"""全变分损失修饰器"""
 
 from typing import override
 import torch
@@ -8,7 +8,7 @@ from style_transfer.models.neural_style_transfer_decorator import (
 
 
 class TvDecorator(NeuralStyleTransferDecorator):
-    """Laplacian风格迁移模型"""
+    """全变分损失修饰器"""
 
     __tv_weight: float
 
