@@ -1,14 +1,14 @@
 """训练风格迁移模型"""
 
 import argparse
-from typing import Tuple
 import torch
 from style_transfer.data import (
     read_img_to_tensor,
     save_img_from_tensor,
     normalize_img_tensor,
     unnormalize_img_tensor,
-    scale_img_tensor,
+    ImageResizer,
+    image_resizer_creater,
 )
 from style_transfer.utils.json_loader import JsonLoader
 from style_transfer.models.feature_extractor import VGGFeatureExtractor
@@ -51,12 +51,11 @@ def main():
     model_type: str = json_loader.load("model")
     content_image = read_img_to_tensor(json_loader.load("content_image"))
     style_image = read_img_to_tensor(json_loader.load("style_image"))
-    image_size: Tuple[int, int] = (
-        json_loader.load("image_height"),
-        json_loader.load("image_width"),
-    )
-    content_image, restore_func = scale_img_tensor(content_image, image_size)
-    style_image, _ = scale_img_tensor(style_image, image_size)
+    resize_stragety: dict = json_loader.load_resize_stragety()
+    content_image_resizer: ImageResizer = image_resizer_creater(resize_stragety)
+    style_image_resizer: ImageResizer = image_resizer_creater(resize_stragety)
+    content_image = content_image_resizer.resize_to(content_image)
+    style_image = style_image_resizer.resize_to(style_image)
     content_image, style_image = normalize_img_tensor(content_image).unsqueeze(
         0
     ), normalize_img_tensor(style_image).unsqueeze(0)
@@ -117,7 +116,7 @@ def main():
     )
     train(transfer_model, iterations, optimizer)
     output_file_path = json_loader.load("output_image")
-    result_img = restore_func(
+    result_img = content_image_resizer.restore_from(
         unnormalize_img_tensor(transfer_model.generated_image[0]).cpu().detach()
     ).clamp(0, 1)
     save_img_from_tensor(result_img, output_file_path)

@@ -2,7 +2,8 @@
 数据处理模块，与数据处理相关的函数、类应该在这个文件
 """
 
-from typing import List, Tuple
+from typing import List, Tuple, Callable, override
+from abc import ABC, abstractmethod
 import torch
 from torchvision import transforms
 from PIL import Image
@@ -221,3 +222,67 @@ def scale_img_tensor(image_tensor: torch.Tensor, size: Tuple[int, int]):
     return image_tensor, lambda x: torch.from_numpy(
         restore_size(x.numpy().transpose(1, 2, 0))
     ).permute(2, 0, 1)
+
+
+class ImageResizer(ABC):
+    """图像调整器基类"""
+
+    _size: Tuple[int, int]
+
+    def __init__(self, size: Tuple[int, int]):
+        if size[0] <= 0 or size[1] <= 0:
+            raise ValueError("Invalid size")
+        self._size = size
+
+    @abstractmethod
+    def resize_to(self, img_tensor: torch.Tensor) -> torch.Tensor:
+        """调整图像张量尺寸"""
+
+    @abstractmethod
+    def restore_from(self, img_tensor: torch.Tensor) -> torch.Tensor:
+        """恢复原来的尺寸"""
+
+
+class TrivialResizer(ImageResizer):
+    """简单的图像调整器"""
+
+    __original_size: Tuple[int, int]
+
+    @override
+    def resize_to(self, img_tensor: torch.Tensor) -> torch.Tensor:
+        """调整图像张量尺寸"""
+        self.__original_size = img_tensor.shape[-2:]
+        return resize_img_tensor(img_tensor, self._size)
+
+    @override
+    def restore_from(self, img_tensor: torch.Tensor) -> torch.Tensor:
+        """恢复原来的尺寸"""
+        if self.__original_size is None:
+            raise ValueError("original_size is not set")
+        return resize_img_tensor(img_tensor, self.__original_size)
+
+
+class PyramidResizer(ImageResizer):
+    """金字塔图像调整器"""
+
+    __restore_func: Callable[[torch.Tensor], torch.Tensor]
+
+    @override
+    def resize_to(self, img_tensor: torch.Tensor) -> torch.Tensor:
+        """调整图像张量尺寸"""
+        result, self.__restore_func = scale_img_tensor(img_tensor, self._size)
+        return result
+
+    @override
+    def restore_from(self, img_tensor: torch.Tensor) -> torch.Tensor:
+        """恢复原来的尺寸"""
+        return self.__restore_func(img_tensor)
+
+
+def image_resizer_creater(resizer_param):
+    """创建图像调整器"""
+    if resizer_param["type"] == "trivial":
+        return TrivialResizer(resizer_param["size"])
+    if resizer_param["type"] == "pyramid":
+        return PyramidResizer(resizer_param["size"])
+    raise ValueError("Unsupported resizer type")

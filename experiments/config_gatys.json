@@ -3,8 +3,6 @@
   "content_image": "data/raw/content/cambridge.jpg",
   "style_image": "data/raw/style/starry_night.jpg",
   "output_image": "experiments/results/gatys/01.jpg",
-  "image_height": 300,
-  "image_width": 300,
   "content_weight": 1,
   "style_weight": 3e10,
   "learning_rate": 0.02,
@@ -13,5 +11,9 @@
   "content_layers": [22],
   "content_layer_weights": [1.0],
   "style_layers": [1, 6, 11, 20, 29],
-  "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2]
+  "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
+  "resize_stragety": {
+    "type": "trivial",
+    "size": [300, 300]
+  }
 }
