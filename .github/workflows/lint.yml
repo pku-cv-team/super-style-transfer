@@ -30,7 +30,7 @@ jobs:
           python-version: 3.12
 
       - name: Install Python dependencies
-        run: pip install black pylint
+        run: pip install black pylint matplotlib pytest pytorch torchvision torchaudio opencv
 
       - name: Run linters
         uses: wearerequired/lint-action@v2
