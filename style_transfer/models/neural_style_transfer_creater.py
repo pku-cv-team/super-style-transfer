@@ -28,10 +28,8 @@ def create_style_transfer_model(
             )
             for param in decorator_param:
                 if param["type"] == "lap_loss":
-                    print("lap_loss")
                     model = LapstyleTransferModel(model, **param)
                 elif param["type"] == "tv_loss":
-                    print("tv_loss")
                     model = TvDecorator(model, **param)
                 else:
                     raise ValueError("Unsupported decorator type.")

@@ -23,7 +23,6 @@ def test_scale_img_numpy_same_size():
     scaled_image, restore_func = scale_img_numpy(image, size)
     assert scaled_image.shape == (256, 256, 3)
     restored_image = restore_func(scaled_image)
-    print(restored_image - image)
     assert np.allclose(restored_image, image)
 
 
