@@ -102,3 +102,13 @@ class VGGFeatureExtractor(FeatureExtractor):
                     / x.numel()
                 )
         return content_features, style_features
+
+
+def feature_extractor_creater(feature_extractor_param: dict) -> FeatureExtractor:
+    """特征提取器创建器"""
+    if feature_extractor_param["type"] == "vgg19":
+        return VGGFeatureExtractor(
+            feature_extractor_param.get("content_layers"),
+            feature_extractor_param.get("style_layers"),
+        )
+    raise ValueError("Unknown feature extractor type.")

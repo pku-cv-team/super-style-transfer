@@ -10,11 +10,10 @@ from style_transfer.data import (
 )
 from style_transfer.utils.json_loader import JsonLoader
 from style_transfer.utils.image_resizer import image_resizer_creater
-from style_transfer.models.feature_extractor import VGGFeatureExtractor
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
-from style_transfer.models.gatys import GatysStyleTransferModel
-from style_transfer.models.lapstyle import LapstyleTransferModel
-from style_transfer.models.tv_decorator import TvDecorator
+from style_transfer.models.neural_style_transfer_creater import (
+    create_style_transfer_model,
+)
 
 
 def train(
@@ -50,7 +49,6 @@ def train(
 
 # 这是主函数，需要从配置文件读取很多内容，因此局部变量较多，我不知道如何避免，暂时先这样
 # pylint: disable=too-many-locals
-# pylint: disable=too-many-statements
 def main():
     """主函数"""
     parser = argparse.ArgumentParser(description="Train style transfer model.")
@@ -60,7 +58,6 @@ def main():
     args = parser.parse_args()
     config_path: str = args.config
     json_loader: JsonLoader = JsonLoader(config_path)
-    model_type: str = json_loader.load("model")
 
     # 加载图片
     content_image = read_img_to_tensor(json_loader.load("content_image"))
@@ -82,66 +79,9 @@ def main():
     content_image.requires_grad = False
     style_image.requires_grad = False
 
-    # 加载权重
-    content_weight: float = json_loader.load("content_weight")
-    style_weight: float = json_loader.load("style_weight")
-    tv_weight: float = json_loader.load("tv_weight")
-
-    # 创建初始化图像
-    init_strategy: str = json_loader.load("init_strategy")
-    init_image = None
-    if init_strategy == "content":
-        init_image = content_image.clone()
-    elif init_strategy == "style":
-        init_image = style_image.clone()
-    elif init_strategy == "noise":
-        init_image = torch.rand(*content_image.shape)
-    else:
-        raise ValueError("Unsupported initial strategy.")
-
-    # 加载特征提取器及创建风格迁移模型
-    content_layers = json_loader.load("content_layers")
-    style_layers = json_loader.load("style_layers")
-    content_layer_weights = json_loader.load("content_layer_weights")
-    style_layer_weights = json_loader.load("style_layer_weights")
-    transfer_model = None
-    if model_type == "gatys":
-        feature_extractor = VGGFeatureExtractor(
-            content_layers=content_layers, style_layers=style_layers
-        )
-        transfer_model = GatysStyleTransferModel(
-            feature_extractor,
-            content_image,
-            style_image,
-            content_weight=content_weight,
-            style_weight=style_weight,
-            content_layer_weights=content_layer_weights,
-            style_layer_weights=style_layer_weights,
-            init_image=init_image,
-        )
-    elif model_type == "lapstyle":
-        feature_extractor = VGGFeatureExtractor(
-            content_layers=content_layers, style_layers=style_layers
-        )
-        gatsy_model = GatysStyleTransferModel(
-            feature_extractor,
-            content_image,
-            style_image,
-            content_weight=content_weight,
-            style_weight=style_weight,
-            content_layer_weights=content_layer_weights,
-            style_layer_weights=style_layer_weights,
-            init_image=init_image,
-        )
-        kernel_size: int = json_loader.load("pool_size")
-        lap_weight: float = json_loader.load("lap_weight")
-        transfer_model = LapstyleTransferModel(
-            gatsy_model, kernel_size=kernel_size, lap_weight=lap_weight
-        )
-    else:
-        raise ValueError("Unsupported model type.")
-    if tv_weight > 1e-6:
-        transfer_model = TvDecorator(transfer_model, tv_weight=tv_weight)
+    transfer_model = create_style_transfer_model(
+        json_loader.load_style_transfer_param()
+    )(content_image, style_image)
     iterations: int = json_loader.load("iterations")
     learning_rate: float = json_loader.load("learning_rate")
     device = torch.device(
