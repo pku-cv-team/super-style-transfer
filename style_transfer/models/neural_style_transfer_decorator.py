@@ -4,6 +4,7 @@ import torch
 from style_transfer.models.gatys import NeuralStyleTransferModel
 
 
+# pylint: disable=protected-access
 class NeuralStyleTransferDecorator(NeuralStyleTransferModel):
     """风格迁移模型装饰器"""
 
@@ -34,3 +35,18 @@ class NeuralStyleTransferDecorator(NeuralStyleTransferModel):
     def generated_image(self, value: torch.Tensor):
         """设置生成图像"""
         self._model.generated_image = value
+
+    @property
+    def _content_image(self) -> torch.Tensor:
+        """内容图像"""
+        return self._model._content_image
+
+    @_content_image.setter
+    def _content_image(self, value: torch.Tensor):
+        """设置内容图像"""
+        self._model._content_image = value
+
+    @property
+    def _style_image(self) -> torch.Tensor:
+        """风格图像"""
+        return self._model._style_image

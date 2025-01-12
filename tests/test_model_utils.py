@@ -16,7 +16,6 @@ def test_compute_gama_matrix_values():
     features = torch.ones(1, 2, 2, 2)
     expected_gama_matrix = torch.tensor([[[4.0, 4.0], [4.0, 4.0]]])
     gama_matrix = compute_gama_matrix(features)
-    print(gama_matrix)
     assert torch.allclose(gama_matrix, expected_gama_matrix)
 
 

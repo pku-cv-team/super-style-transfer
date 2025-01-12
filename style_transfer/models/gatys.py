@@ -41,7 +41,17 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         self.__style_weight = kwargs.get("style_weight", 1e-2)
         self.__content_layer_weights = kwargs.get("content_layer_weights", None)
         self.__style_layer_weights = kwargs.get("style_layer_weights", None)
-        self.generated_image = kwargs.get("init_image").requires_grad_(True)
+        # 初始化生成图像
+        init_strategy = kwargs.get("init_strategy", "content")
+        if init_strategy == "content":
+            self.generated_image = content_image.clone()
+        elif init_strategy == "style":
+            self.generated_image = style_image.clone()
+        elif init_strategy == "noise":
+            self.generated_image = torch.rand(*content_image.shape)
+        else:
+            raise ValueError("Unsupported initial strategy.")
+        self.generated_image = self.generated_image.requires_grad_(True)
         self.__feature_extractor = feature_extractor
         self._content_image = content_image
         self._style_image = style_image
