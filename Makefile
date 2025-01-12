@@ -1,7 +1,7 @@
 source_dir = style_transfer
 test_dir = tests
 
-.PHONY: test lint typecheck format clean gatys
+.PHONY: test lint format clean gatys fast
 
 test:
 	pytest
@@ -18,3 +18,6 @@ clean:
 
 gatys:
 	python style_transfer/train.py --config experiments/config_gatys.json
+
+fast:
+	python style_transfer/fast_train.py --config experiments/config_fast.json
