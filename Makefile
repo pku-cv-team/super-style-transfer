@@ -18,6 +18,3 @@ clean:
 
 gatys:
 	python style_transfer/train.py --config experiments/config_gatys.json
-
-lapstyle:
-	python style_transfer/train.py --config experiments/config_lapstyle.json

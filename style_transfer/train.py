@@ -32,7 +32,7 @@ def train(
     """
     torch.autograd.set_detect_anomaly(True)
     i = 0
-    while i <= iterations:
+    while i < iterations:
 
         def closure():
             nonlocal i
