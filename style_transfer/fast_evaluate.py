@@ -21,7 +21,6 @@ MODEL_PATH: str = (
 )
 
 
-# TODO(NOT_SPECIFIED): Add code here
 def evaluate(
     transfer_net: TransferNet,
     loss_net: LossNet,
@@ -43,7 +42,6 @@ def evaluate(
 
 def main():
     """主函数"""
-    # TODO(NOT_SPECIFIED): Add code here
     parser = argparse.ArgumentParser(description="Evaluate style transfer model.")
     parser.add_argument(
         "--config", type=str, help="Path to the config file.", required=True
