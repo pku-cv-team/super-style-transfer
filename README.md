@@ -128,7 +128,7 @@ make <target_name>
 
 ### 其他问题
 
-### 在自己的分支开发
+#### 在自己的分支开发
 
 建议将项目下载到本地后创建新的分支，以自己的用户名命名，推送到远程仓库，在自己的分支进行开发，待自己开发的部分基本稳定后发起 Pull Request 合并到主分支。
 
@@ -139,6 +139,43 @@ make <target_name>
 > [!IMPORTANT]
 > 不要强制推送、合并，涉及冲突的代码应该与对应的开发者讨论合并方式。
 
-### 注意同步环境
+#### 注意同步环境
 
 最好创建一个新的 Anaconda 环境，并仅安装[环境搭建](#环境搭建)中提到的必要的包，如果需要新的包，安装后应该向其他同学说明，或在 Pull Request 中说明，以便大家更新环境。
+
+## 基于前馈网络的代码框架
+
+基于前馈网络的代码实现主要依照[论文](https://arxiv.org/abs/1603.08155)，参考了 `Pytorch` [样例仓库](https://github.com/pytorch/examples/tree/main) 的[代码](https://github.com/pytorch/examples/tree/main/fast_neural_style)。
+
+### 数据
+
+训练数据暂定使用 [COCO](https://cocodataset.org/) 数据集，使用2017年的数据，将下载到 [data/coco](data/coco/) 目录下，为了使用的方便，框架提供了下载脚本，Linux平台可以使用[get_coco.sh](./get_coco.sh)脚本，其他平台可以使用[get_coco.py](./get_coco.py)脚本。
+
+> [!NOTE]
+> 暂时用的是 [COCO](https://cocodataset.org/) 数据集，这个数据集很大，可能需要下载很久，大家也可以找一下或许有更好的数据集
+
+### 基本组成
+
+框架在[transfer_net.py](./style_transfer/models/transfer_net.py)定义了生成网络，在[loss_net.py](./style_transfer/models/loss_net.py)定义了损失网络，在[dataset.py](./style_transfer/dataset.py)定义了 `COCO` 数据集，定义了训练模块[fast_train.py](./style_transfer/train.py)，评估模块[fast_evaluate](./style_transfer/fast_evaluate.py)和应用模块[fast_stylize.py](./style_transfer/fast_stylize.py)。除了损失网络、训练、数据集基本完成外，其他模块均未完成。
+
+配置文件为[config_fast.json](./experiments/config_fast.json)，但尚不完善。
+
+### 需要完成的部分
+
+#### 完善框架
+
+当前的框架并不完整，许多内容尚未完成，大家需要找到标记了 `TODO` 的地方进行补充。许多逻辑上不完善，可能在完成一个部分的时候需要改动其他部分、增加一些内容。
+
+实现的时候可以参考Pytorch的[实现]((https://github.com/pytorch/examples/tree/main/fast_neural_style))，注意稍微修改一下。
+
+比较大的几个需要完成的模块是
+
+[ ] 转换网络
+[ ] 训练模块的预处理
+[ ] 评估模块，主要就是加载模型，在验证集或测试集上计算损失，或者你也可以开发更好的评估方式
+[ ] 应用模块，主要为提供接口给用户，输入一张图片，输出一张风格迁移后的图片
+[ ] 调试，这个框架没有经过实验，即使完成了所有模块也可能不能正常运行，需要调试
+
+#### 适配训练
+
+训练需要很多计算，笔记本不一定能完成，可能需要使用云服务，所以可能需要提供 `ipynb` 文件，这部分工作可以待框架完成后再行整合。
