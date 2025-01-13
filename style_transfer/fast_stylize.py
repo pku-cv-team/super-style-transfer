@@ -10,10 +10,11 @@ from style_transfer.data import (
     normalize_img_tensor,
 )
 from style_transfer.utils.image_resizer import resize_img_tensor
+from style_transfer.utils.model_utils import load_model
 
 DEVICE: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL_PATH: str = (
-    "experiments/models/best_model.pth"  # TODO(NOT_SPECIFIC_ONE) 模型保存路径应当根据实际修改
+    "experiments/models/model.pth"  # TODO(NOT_SPECIFIC_ONE) 模型保存路径应当根据实际修改
 )
 
 
@@ -28,7 +29,7 @@ def stylize(content_image: torch.Tensor, model_path: str) -> torch.Tensor:
         torch.Tensor: 迁移后的图片，shape: (1, c, h, w)
     """
     transfer_net = TransferNet()
-    transfer_net.load_state_dict(torch.load(model_path, weights_only=True))
+    load_model(transfer_net, model_path)
     transfer_net.to(DEVICE)
     transfer_net.eval()
     return transfer_net(content_image)
