@@ -62,7 +62,7 @@ def main():
     # 加载图片
     content_image = read_img_to_tensor(json_loader.load("content_image"))
     style_images = [
-        read_img_to_tensor(path) for path in json_loader.load("style_image_paths")
+        read_img_to_tensor(path) for path in json_loader.load_to_list("style_image")
     ]
 
     # 加载图像大小调整器
