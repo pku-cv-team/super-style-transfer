@@ -1,0 +1,39 @@
+{
+  "content_image": "data/raw/content/cambridge.jpg",
+  "style_images": ["data/raw/style/starry_night.jpg", "data/raw/style/picasso.jpg"],
+  "model_config": {
+    "type": "gatys",
+    "feature_extractor": {
+      "type": "vgg19",
+      "content_layers": [22],
+      "style_layers": [1, 6, 11, 20, 29]
+    },
+    "content_layer_weights": [1.0],
+    "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
+    "content_weight": 1e3,
+    "style_weight": [3e10, 3e10],
+    "addition_loss": [
+      {
+        "type": "tv_loss",
+        "tv_weight": 1e-2
+      },
+      {
+        "type": "lap_loss",
+        "lap_weight": 1e-2,
+        "pool_size": 4
+      }
+    ],
+    "init_strategy": "content"
+  },
+  "resize_stragety": {
+    "type": "srcnn",
+    "size": [300, 300],
+    "model_path": "style_transfer/srcnn_x3.pth",
+    "scale": 3
+  },
+  "learning_rate": 0.2,
+  "iterations": 500,
+  "device": "cuda",
+  "optimizer": "LBFGS",
+  "output_image": "experiments/results/gatys/01.jpg"
+}
