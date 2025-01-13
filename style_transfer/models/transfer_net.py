@@ -21,11 +21,11 @@ class TransferNet(nn.Module):
         self.residual3 = ResidualBlock(128)
         self.residual4 = ResidualBlock(128)
         self.residual5 = ResidualBlock(128)
-        self.upsample1 = UpSample(128, 64, 3, 2, 2)
+        self.upsample1 = UpSample(128, 64, 3, 1, 2)
         self.in4 = nn.InstanceNorm2d(64, affine=True)
-        self.upsample2 = UpSample(64, 32, 3, 2, 2)
+        self.upsample2 = UpSample(64, 32, 3, 1, 2)
         self.in5 = nn.InstanceNorm2d(32, affine=True)
-        self.upsample3 = UpSample(32, 3, 9, 1, 2)
+        self.upsample3 = DownSample(32, 3, 9, 1)
         self.relu = nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
