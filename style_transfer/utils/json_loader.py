@@ -37,8 +37,8 @@ class JsonLoader:
         size = stragety["size"]
         if stragety_type == "trivial":
             return {"type": stragety_type, "size": size}
-        if stragety_type == "pyrimid":
-            return {"type:": stragety_type, "size": size}
+        if stragety_type == "pyramid":
+            return {"type": stragety_type, "size": size}
         if stragety_type == "srcnn":
             if "scale" not in stragety:
                 raise ValueError("Resize stragety srcnn should have scale.")

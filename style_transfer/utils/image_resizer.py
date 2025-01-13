@@ -125,9 +125,12 @@ def scale_img_tensor(
     image_numpy = image_tensor.numpy().transpose(1, 2, 0)
     image_numpy, restore_size = scale_img_numpy(image_numpy, size)
     image_tensor = torch.from_numpy(image_numpy.transpose(2, 0, 1))
-    return image_tensor, lambda x: torch.from_numpy(
-        restore_size(x.numpy().transpose(1, 2, 0))
-    ).permute(2, 0, 1)
+    return (
+        image_tensor.contiguous(),
+        lambda x: torch.from_numpy(restore_size(x.numpy().transpose(1, 2, 0)))
+        .permute(2, 0, 1)
+        .contiguous(),
+    )
 
 
 class ImageResizer(ABC):
