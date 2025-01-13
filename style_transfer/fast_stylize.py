@@ -13,7 +13,6 @@ from style_transfer.utils.image_resizer import resize_img_tensor
 from style_transfer.utils.model_utils import load_model
 
 DEVICE: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-MODEL_PATH: str = "experiments/models/model.pth"
 
 
 def stylize(content_image: torch.Tensor, model_path: str) -> torch.Tensor:
@@ -42,6 +41,7 @@ def main():
     parser.add_argument(
         "--output", type=str, help="Path to the output image.", required=True
     )
+    parser.add_argument("--model", type=str, help="Path to the model.", required=True)
     args = parser.parse_args()
     mean = [0.485, 0.456, 0.406]
     std = [0.229, 0.224, 0.225]
@@ -52,7 +52,7 @@ def main():
     ).unsqueeze(0)
     content_image = content_image.to(DEVICE)
     output = (
-        unnormalize_img_tensor(stylize(content_image, MODEL_PATH)[0], mean, std)
+        unnormalize_img_tensor(stylize(content_image, args.model)[0], mean, std)
         .cpu()
         .detach()
         .clamp(0, 1)
