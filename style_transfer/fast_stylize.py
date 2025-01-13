@@ -8,6 +8,7 @@ from style_transfer.data import (
     read_img_to_tensor,
     save_img_from_tensor,
     unnormalize_img_tensor,
+    img_tensor_to_pil,
 )
 
 DEVICE: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -35,7 +36,6 @@ def stylize(content_image: torch.Tensor, model_path: str) -> torch.Tensor:
 
 def main():
     """主函数"""
-    # TODO 暂时使用命令行参数指定输入输出路径，后续可考虑设置专用文件夹
     parser = argparse.ArgumentParser(description="Apply fast style transfer model.")
     parser.add_argument(
         "--input", type=str, help="Path to the input image.", required=True
@@ -54,9 +54,8 @@ def main():
         ]
     )
     content_image = read_img_to_tensor(args.input)
-    content_image = input_transform(content_image).unsqueeze(0)
-    content_image.to(DEVICE)
-    # TODO 暂时以256*256的大小输出，若想引入image_resizer可再修改
+    content_image = input_transform(img_tensor_to_pil(content_image)).unsqueeze(0)
+    content_image = content_image.to(DEVICE)
     output = (
         unnormalize_img_tensor(stylize(content_image, MODEL_PATH)[0], mean, std)
         .cpu()

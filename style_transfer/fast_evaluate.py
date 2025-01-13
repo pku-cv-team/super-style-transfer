@@ -8,9 +8,7 @@ from style_transfer.models.transfer_net import TransferNet
 from style_transfer.models.loss_net import LossNet
 from style_transfer.dataset import CocoDataset
 from style_transfer.utils.json_loader import JsonLoader
-from style_transfer.data import (
-    read_img_to_tensor,
-)
+from style_transfer.data import read_img_to_tensor, img_tensor_to_pil
 from style_transfer.models.neural_style_transfer_creater import (
     create_style_transfer_model,
 )
@@ -71,7 +69,11 @@ def main():
     )
 
     style_image: torch.Tensor = read_img_to_tensor(json_loader.load("style_image_path"))
-    style_image = transform(style_image).unsqueeze(0).repeat(batch_size, 1, 1, 1)
+    style_image = (
+        transform(img_tensor_to_pil(style_image))
+        .unsqueeze(0)
+        .repeat(batch_size, 1, 1, 1)
+    )
 
     loss_net = LossNet(
         lambda content_image: create_style_transfer_model(
@@ -85,3 +87,7 @@ def main():
     style_image.to(DEVICE)
 
     evaluate(transfer_net, loss_net, dataloader)
+
+
+if __name__ == "__main__":
+    main()
