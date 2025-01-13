@@ -175,7 +175,8 @@ def main():
     }
 
     scheduler: torch.optim.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-        optimizer, json_loader.load("epochs")
+        optimizer,
+        json_loader.load("epochs") * len(dataloader) // json_loader.load("batch_size"),
     )
 
     train(transfer_net, loss_net, dataloader, optimizer, config_state, scheduler)

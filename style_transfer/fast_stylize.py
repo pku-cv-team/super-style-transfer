@@ -2,18 +2,18 @@
 
 import argparse
 import torch
-from torchvision import transforms
 from style_transfer.models.transfer_net import TransferNet
 from style_transfer.data import (
     read_img_to_tensor,
     save_img_from_tensor,
     unnormalize_img_tensor,
-    img_tensor_to_pil,
+    normalize_img_tensor,
 )
+from style_transfer.utils.image_resizer import resize_img_tensor
 
 DEVICE: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 MODEL_PATH: str = (
-    "experiments/models/model.pth"  # TODO(NOT_SPECIFIC_ONE) 模型保存路径应当根据实际修改
+    "experiments/models/best_model.pth"  # TODO(NOT_SPECIFIC_ONE) 模型保存路径应当根据实际修改
 )
 
 
@@ -44,17 +44,13 @@ def main():
         "--output", type=str, help="Path to the output image.", required=True
     )
     args = parser.parse_args()
-    mean = [0.5, 0.5, 0.5]
-    std = [0.5, 0.5, 0.5]
-    input_transform = transforms.Compose(
-        [
-            transforms.Resize((256, 256)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=mean, std=std),
-        ]
-    )
+    mean = [0.485, 0.456, 0.406]
+    std = [0.229, 0.224, 0.225]
     content_image = read_img_to_tensor(args.input)
-    content_image = input_transform(img_tensor_to_pil(content_image)).unsqueeze(0)
+    original_size = content_image.shape[-2:]
+    content_image = normalize_img_tensor(
+        resize_img_tensor(content_image, (256, 256)), mean, std
+    ).unsqueeze(0)
     content_image = content_image.to(DEVICE)
     output = (
         unnormalize_img_tensor(stylize(content_image, MODEL_PATH)[0], mean, std)
@@ -62,7 +58,7 @@ def main():
         .detach()
         .clamp(0, 1)
     )
-    save_img_from_tensor(output, args.output)
+    save_img_from_tensor(resize_img_tensor(output, original_size), args.output)
 
 
 if __name__ == "__main__":

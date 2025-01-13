@@ -185,5 +185,4 @@ cython_debug/
 data/coco/*
 !data/coco/.gitkeep
 
-experiments/checkpoints/*
-experiments/models/*
+*.pth
