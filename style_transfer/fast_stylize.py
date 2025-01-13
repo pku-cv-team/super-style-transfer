@@ -13,9 +13,7 @@ from style_transfer.utils.image_resizer import resize_img_tensor
 from style_transfer.utils.model_utils import load_model
 
 DEVICE: torch.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-MODEL_PATH: str = (
-    "experiments/models/model.pth"  # TODO(NOT_SPECIFIC_ONE) 模型保存路径应当根据实际修改
-)
+MODEL_PATH: str = "experiments/models/model.pth"
 
 
 def stylize(content_image: torch.Tensor, model_path: str) -> torch.Tensor:

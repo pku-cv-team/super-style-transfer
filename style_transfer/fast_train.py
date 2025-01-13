@@ -19,7 +19,6 @@ MODEL_PATH: str = "experiments/models/model.pth"
 CHECKPOINT_DIR: str = "experiments/checkpoints"
 
 
-# pylint: disable=too-many-arguments, too-many-positional-arguments
 def train(
     transfer_net: TransferNet,
     loss_net: LossNet,
