@@ -3,15 +3,17 @@
 import argparse
 import torch
 from torch.optim.lr_scheduler import StepLR
-from torch.utils.tensorboard import SummaryWriter
-from torchvision import transforms
 from torch.utils.data import DataLoader
+from torchvision import transforms
 from style_transfer.models.transfer_net import TransferNet
 from style_transfer.models.loss_net import LossNet
 from style_transfer.dataset import CocoDataset
 from style_transfer.utils.json_loader import JsonLoader
-from style_transfer.data import read_img_to_tensor
-from style_transfer.models.neural_style_transfer_creater import create_style_transfer_model
+from style_transfer.data import read_img_to_tensor, img_tensor_to_pil
+from style_transfer.models.neural_style_transfer_creater import (
+    create_style_transfer_model,
+)
+
 # pylint: disable=unused-import
 # 似乎train函数中使用了但是似乎没办法正确检查到，pylint检查时会标记未被引用
 from style_transfer.utils.model_utils import save_checkpoint
@@ -21,19 +23,21 @@ MODEL_PATH: str = "experiments/models/model.pth"
 CHECKPOINT_DIR: str = "experiments/checkpoints"
 
 
+# pylint: disable=too-many-arguments, too-many-positional-arguments
 def train(
-        transfer_net: TransferNet,
-        loss_net: LossNet,
-        dataloader: DataLoader,
-        optimizer: torch.optim,
-        config: dict,
+    transfer_net: TransferNet,
+    loss_net: LossNet,
+    dataloader: DataLoader,
+    optimizer: torch.optim,
+    config: dict,
+    scheduler: torch.optim.lr_scheduler,
 ):
     """训练风格迁移网络"""
     torch.autograd.set_detect_anomaly(True)
     best_loss = float("inf")
     scheduler = StepLR(optimizer, step_size=10, gamma=0.1)
     early_stop_counter = 0
-    writer = SummaryWriter(config["log_dir"])
+    # writer = SummaryWriter(config["log_dir"])
     for epoch in range(config["epochs"]):
         for i, data in enumerate(dataloader):
             data = data.to(DEVICE)
@@ -45,6 +49,7 @@ def train(
 
             loss.backward()
             optimizer.step()
+            scheduler.step()
 
             if loss.item() < best_loss:
                 early_stop_counter = 0
@@ -52,7 +57,9 @@ def train(
                 torch.save(transfer_net.state_dict(), MODEL_PATH)
             else:
                 early_stop_counter += 1
-            if early_stop_counter >= config["patience"]:
+            # pylint: disable=condition-evals-to-constant
+            # 暂时禁用早停
+            if early_stop_counter >= config["patience"] and False:
                 print(f"Early stopping at epoch {epoch}, iteration {i + 1}")
                 return  # 早停，如果训练的loss一直无法降低到达patience的阈值，那么就停止训练
 
@@ -60,14 +67,14 @@ def train(
                 save_checkpoint(
                     transfer_net,
                     optimizer,
-                    None,
+                    scheduler,
                     epoch,
                     loss.item(),
                     f"{CHECKPOINT_DIR}/checkpoint_{epoch}_{i + 1}.pth",
                 )
-            writer.add_scalar(
-                "Loss/train", loss.item(), epoch * len(dataloader) + i
-            )
+            # writer.add_scalar(
+            #     "Loss/train", loss.item(), epoch * len(dataloader) + i
+            # )
         scheduler.step()
 
 
@@ -104,7 +111,11 @@ def create_dataloader(dataset, json_loader):
 def load_style_image(json_loader, transfrom, batch_size):
     """加载风格图像"""
     style_image: torch.Tensor = read_img_to_tensor(json_loader.load("style_image_path"))
-    style_image = transfrom(style_image).unsqueeze(0).repeat(batch_size, 1, 1, 1)
+    style_image = (
+        transfrom(img_tensor_to_pil(style_image))
+        .unsqueeze(0)
+        .repeat(batch_size, 1, 1, 1)
+    )
     return style_image
 
 
@@ -118,9 +129,11 @@ def create_loss_net(json_loader, style_image):
     return loss_net
 
 
-def create_optimizer(transfer_net, json_loader):
+def create_optimizer(transfer_net: TransferNet, json_loader: JsonLoader):
     """创建优化器"""
-    optimizer = torch.optim.AdamW(transfer_net.parameters(), lr=json_loader("lr"))
+    optimizer = torch.optim.AdamW(
+        transfer_net.parameters(), lr=json_loader.load("learning_rate")
+    )
     return optimizer
 
 
@@ -158,10 +171,14 @@ def main():
         "epochs": json_loader.load("epochs"),
         "checkpoint_fre": 1000,
         "patience": 10,
-        "log_dir": "logs"
+        "log_dir": "logs",
     }
 
-    train(transfer_net, loss_net, dataloader, optimizer, config_state)
+    scheduler: torch.optim.lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer, json_loader.load("epochs")
+    )
+
+    train(transfer_net, loss_net, dataloader, optimizer, config_state, scheduler)
 
 
 if __name__ == "__main__":
