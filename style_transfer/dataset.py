@@ -6,11 +6,12 @@ from torchvision.datasets import CocoDetection
 
 
 # modified from example code provided by ChatGPT
+# pylint: disable=too-few-public-methods
 class CocoDataset(CocoDetection):
     """Coco数据集加载及处理"""
 
-    def __init__(self, root: str, annFile: str, transform: transforms = None):
-        super().__init__(root, annFile)
+    def __init__(self, root: str, ann_file: str, transform: transforms = None):
+        super().__init__(root, ann_file)
         self.transform = transform
 
     def __getitem__(self, index: int) -> torch.Tensor:

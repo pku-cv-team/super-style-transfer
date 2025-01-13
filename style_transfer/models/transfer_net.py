@@ -4,7 +4,7 @@ import torch
 from torch import nn
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes, too-few-public-methods
 class TransferNet(nn.Module):
     """风格迁移网络"""
 
@@ -44,6 +44,7 @@ class TransferNet(nn.Module):
         return out
 
 
+# pylint: disable=too-few-public-methods
 class DownSample(nn.Module):
     """下采样层"""
 
@@ -57,6 +58,7 @@ class DownSample(nn.Module):
         return self.conv(self.padding(x))
 
 
+# pylint: disable=too-few-public-methods
 class UpSample(nn.Module):
     """上采样层"""
 
@@ -77,6 +79,7 @@ class UpSample(nn.Module):
         return self.conv2d(self.padding(x_in))
 
 
+# pylint: disable=too-few-public-methods
 class ResidualBlock(nn.Module):
     """残差块"""
 

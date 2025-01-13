@@ -53,9 +53,14 @@ def train(
 # pylint: disable=too-many-locals
 def main():
     """主函数"""
-    parser = argparse.ArgumentParser(description="Train style transfer model.")
+    parser = argparse.ArgumentParser(
+        description="Train fast neural style transfer model."
+    )
     parser.add_argument(
-        "--config", type=str, help="Path to the config file.", required=True
+        "--config",
+        type=str,
+        help="Path to the config file of the fast neural style transfer model.",
+        required=True,
     )
     args = parser.parse_args()
     config_path: str = args.config
@@ -72,7 +77,7 @@ def main():
         ]
     )
     dataset: CocoDataset = CocoDataset(
-        root=root_dir, annFile=ann_file, transform=transform
+        root=root_dir, ann_file=ann_file, transform=transform
     )
     batch_size: int = json_loader.load("batch_size")
     dataloader: DataLoader = DataLoader(
