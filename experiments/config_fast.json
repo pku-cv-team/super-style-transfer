@@ -11,17 +11,12 @@
     },
     "content_layer_weights": [1.0],
     "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
-    "content_weight": 1e3,
-    "style_weight": 3e8,
+    "content_weight": 2e6,
+    "style_weight": 8e6,
     "addition_loss": [],
     "init_strategy": "content"
   },
-  "resize_stragety": {
-    "type": "trival",
-    "size": [300, 300]
-  },
   "learning_rate": 1e-3,
   "epochs": 10,
-  "batch_size": 8,
-  "device": "cuda"
+  "batch_size": 8
 }
