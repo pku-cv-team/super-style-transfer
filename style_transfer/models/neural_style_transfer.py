@@ -27,7 +27,7 @@ class NeuralStyleTransferModel(ABC):
             NeuralStyleTransferModel: 风格迁移模型
         """
         self._content_image = self._content_image.to(device)
-        self._style_image = self._style_image.to(device)
+        self._style_images = [img.to(device) for img in self._style_images]
         self.generated_image.data = self.generated_image.data.to(device)
         if self.generated_image.grad is not None:
             self.generated_image.grad = self.generated_image.grad.to(device)
@@ -72,14 +72,14 @@ class NeuralStyleTransferModel(ABC):
         self._content_image_storage = value
 
     @property
-    def _style_image(self) -> torch.Tensor:
+    def _style_images(self) -> List[torch.Tensor]:
         """风格图像"""
         if not hasattr(self, "_style_image_storage"):
             raise AttributeError("Style image is not set")
         return self._style_image_storage
 
-    @_style_image.setter
-    def _style_image(self, value: torch.Tensor):
+    @_style_images.setter
+    def _style_images(self, value: List[torch.Tensor]):
         """设置风格图像"""
         self._style_image_storage = value
 

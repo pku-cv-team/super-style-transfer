@@ -12,7 +12,7 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
     """Gatys风格迁移模型"""
 
     __content_weight: float
-    __style_weight: float
+    __style_weight: List[float]
     __feature_extractor: FeatureExtractor
     __content_layer_weights: List[float]
     __style_layer_weights: List[float]
@@ -21,7 +21,7 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         self,
         feature_extractor: FeatureExtractor,
         content_image: torch.Tensor,
-        style_image: torch.Tensor,
+        style_images: List[torch.Tensor],
         **kwargs,
     ):
         """初始化Gatys风格迁移模型
@@ -36,17 +36,15 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
 
         super().__init__()
         self._content_image = content_image
-        self._style_image = style_image
+        self._style_image = style_images
         self.__content_weight = kwargs.get("content_weight", 1e4)
-        self.__style_weight = kwargs.get("style_weight", 1e-2)
+        self.__style_weight = kwargs.get("style_weight", [1e-2])
         self.__content_layer_weights = kwargs.get("content_layer_weights", None)
         self.__style_layer_weights = kwargs.get("style_layer_weights", None)
         # 初始化生成图像
         init_strategy = kwargs.get("init_strategy", "content")
         if init_strategy == "content":
             self.generated_image = content_image.clone()
-        elif init_strategy == "style":
-            self.generated_image = style_image.clone()
         elif init_strategy == "noise":
             self.generated_image = torch.rand(*content_image.shape)
         else:
@@ -54,7 +52,7 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         self.generated_image = self.generated_image.requires_grad_(True)
         self.__feature_extractor = feature_extractor
         self._content_image = content_image
-        self._style_image = style_image
+        self._style_images = style_images
 
     @override
     def to(
@@ -79,17 +77,25 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         content_features, style_features = self.__feature_extractor.extract_features(
             self.generated_image
         )
-        content_loss = self._compute_loss(
-            self.cached_content_features,
-            content_features,
-            weight_list=self.__content_layer_weights,
+        loss = (
+            self._compute_loss(
+                self.cached_content_features,
+                content_features,
+                weight_list=self.__content_layer_weights,
+            )
+            * self.__content_weight
         )
-        style_loss = self._compute_loss(
-            self.cached_style_features,
-            style_features,
-            weight_list=self.__style_layer_weights,
-        )
-        loss = self.__content_weight * content_loss + self.__style_weight * style_loss
+        for cached_style_feature, weight in zip(
+            self.cached_style_features, self.__style_weight
+        ):
+            loss += (
+                self._compute_loss(
+                    cached_style_feature,
+                    style_features,
+                    weight_list=self.__style_layer_weights,
+                )
+                * weight
+            )
         return loss
 
     @cached_property
@@ -98,6 +104,9 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         return self.__feature_extractor.extract_features(self._content_image_storage)[0]
 
     @cached_property
-    def cached_style_features(self) -> List[torch.Tensor]:
+    def cached_style_features(self) -> List[List[torch.Tensor]]:
         """风格特征列表"""
-        return self.__feature_extractor.extract_features(self._style_image_storage)[1]
+        return [
+            self.__feature_extractor.extract_features(style_image)[1]
+            for style_image in self._style_image_storage
+        ]

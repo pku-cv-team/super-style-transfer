@@ -80,7 +80,7 @@ class JsonLoader:
             return {
                 "type": style_transfer_type,
                 "content_weight": style_transfer_param.get("content_weight", 1.0),
-                "style_weight": style_transfer_param.get("style_weight", 1e4),
+                "style_weight": style_transfer_param.get("style_weight", [1e4]),
                 "feature_extractor": self.__load_feature_extractor_param(
                     style_transfer_param
                 ),
