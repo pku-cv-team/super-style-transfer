@@ -13,7 +13,7 @@
     "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
     "content_weight": 2e6,
     "style_weight": 8e6,
-    "addition_loss": [],
+    "additional_loss": [],
     "init_strategy": "content"
   },
   "learning_rate": 1e-3,

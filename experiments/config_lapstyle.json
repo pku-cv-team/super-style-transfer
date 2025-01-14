@@ -1,6 +1,6 @@
 {
-  "content_image": "data/raw/content/cambridge.jpg",
-  "style_image": "data/raw/style/starry_night.jpg",
+  "content_image": "data/raw/content/kid.png",
+  "style_image": "data/raw/style/draw.jpg",
   "model_config": {
     "type": "gatys",
     "feature_extractor": {
@@ -10,29 +10,23 @@
     },
     "content_layer_weights": [1.0],
     "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
-    "content_weight": 1e3,
-    "style_weight": 3e8,
+    "content_weight": 1e-4,
+    "style_weight": 3e9,
     "additional_loss": [
       {
-        "type": "tv_loss",
-        "tv_weight": 1e-2
-      },
-      {
         "type": "lap_loss",
-        "lap_weight": 1e-2,
-        "pool_size": 4
+        "lap_weight": [3e6, 1e6],
+        "pool_size": [2, 4]
       }
     ],
     "init_strategy": "content"
   },
   "resize_stragety": {
-    "type": "srcnn",
-    "size": [300, 300],
-    "model_path": "experiments/pretrained_models/srcnn_x3.pth",
-    "scale": 3
+    "type": "trivial",
+    "size": [300, 300]
   },
   "learning_rate": 0.2,
-  "iterations": 500,
+  "iterations": 1000,
   "device": "cuda",
   "optimizer": "LBFGS",
   "output_image": "experiments/results/gatys/01.jpg"

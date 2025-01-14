@@ -12,7 +12,7 @@
     "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
     "content_weight": 1e3,
     "style_weight": [3e10, 3e10],
-    "addition_loss": [
+    "additional_loss": [
       {
         "type": "tv_loss",
         "tv_weight": 1e-2

@@ -42,6 +42,7 @@ class NeuralStyleTransferModel(ABC):
         Args:
             features: 特征列表
             generated_features: 生成的特征列表
+            weight_list: 权重列表
 
         Returns:
             torch.Tensor: 损失
