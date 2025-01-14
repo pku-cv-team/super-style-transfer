@@ -17,14 +17,14 @@ class TvDecorator(NeuralStyleTransferDecorator):
         super().__init__(model)
 
     @override
-    def forward(self) -> torch.Tensor:
+    def _compute_all_loss(self, stylized_image: torch.Tensor) -> torch.Tensor:
         """前向传播
 
         Returns:
             torch.Tensor: 损失
         """
         content_and_style_loss_with_weight = self._model.forward()
-        tv_loss = self.__compute_tv_loss(self._model.generated_image)
+        tv_loss = self.__compute_tv_loss(stylized_image)
         return content_and_style_loss_with_weight + self.__tv_weight * tv_loss
 
     @staticmethod

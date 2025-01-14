@@ -9,13 +9,13 @@ from torch import nn
 class NeuralStyleTransferModel(ABC):
     """风格迁移模型"""
 
-    @abstractmethod
     def forward(self) -> torch.Tensor:
         """前向传播
 
         Returns:
             torch.Tensor: 损失
         """
+        return self._compute_all_loss(self.generated_image)
 
     def to(self, device: torch.device) -> "NeuralStyleTransferModel":
         """将风格迁移模型移动到指定设备
@@ -32,6 +32,10 @@ class NeuralStyleTransferModel(ABC):
         if self.generated_image.grad is not None:
             self.generated_image.grad = self.generated_image.grad.to(device)
         return self
+
+    @abstractmethod
+    def _compute_all_loss(self, stylized_image: torch.Tensor):
+        """计算所有损失"""
 
     @staticmethod
     def _compute_loss(

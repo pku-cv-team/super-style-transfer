@@ -23,7 +23,7 @@ class LapstyleTransferModel(NeuralStyleTransferDecorator):
         super().__init__(model)
 
     @override
-    def forward(self) -> torch.Tensor:
+    def _compute_all_loss(self, stylized_image: torch.Tensor) -> torch.Tensor:
         """前向传播
 
         Returns:
@@ -31,7 +31,7 @@ class LapstyleTransferModel(NeuralStyleTransferDecorator):
         """
         content_and_style_loss_with_weight = self._model.forward()
         lap_features = self.__compute_laplacian_feature(
-            self._model.generated_image, self.__pool_size
+            stylized_image, self.__pool_size
         )
         lap_loss = (
             self._compute_loss(

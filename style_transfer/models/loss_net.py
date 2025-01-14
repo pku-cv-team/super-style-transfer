@@ -27,5 +27,5 @@ class LossNet:
         style_transfer: NeuralStyleTransferModel = self.__neural_style_transfer_creator(
             content_image
         ).to(x.device)
-        style_transfer.generated_image = x
-        return style_transfer.forward()
+        # pylint: disable=protected-access
+        return style_transfer._compute_all_loss(x)

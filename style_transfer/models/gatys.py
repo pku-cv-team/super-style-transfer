@@ -65,7 +65,7 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         return self
 
     @override
-    def forward(self) -> torch.Tensor:
+    def _compute_all_loss(self, stylized_image: torch.Tensor) -> torch.Tensor:
         """前向传播
 
         Args:
@@ -75,7 +75,7 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
             loss: 损失，为内容损失和风格损失的加权和
         """
         content_features, style_features = self.__feature_extractor.extract_features(
-            self.generated_image
+            stylized_image
         )
         loss = (
             self._compute_loss(
