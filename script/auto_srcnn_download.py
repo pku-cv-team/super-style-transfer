@@ -4,9 +4,9 @@ import os
 import requests
 
 file_urls = [
-    "https://www.dropbox.com/scl/fi/9608kumo7yyg6mzqzvns2/srcnn_x2.pth",
-    "https://www.dropbox.com/scl/fi/sx03zansjfjdxuftkxrwf/srcnn_x3.pth",
-    "https://www.dropbox.com/scl/fi/jv942327mse39x3s2wwe3/srcnn_x4.pth",
+    "https://www.dropbox.com/scl/fi/9608kumo7yyg6mzqzvns2/srcnn_x2.pth?rlkey=ff6njqtgpanoywi2rngmz5ilh&e=1&dl=1",
+    "https://www.dropbox.com/scl/fi/sx03zansjfjdxuftkxrwf/srcnn_x3.pth?rlkey=0tr8h4r4344xgdosy4zo7ce6l&e=1&dl=1",
+    "https://www.dropbox.com/scl/fi/jv942327mse39x3s2wwe3/srcnn_x4.pth?rlkey=pbmizpptooiz0jgm2jtr92cri&e=1&dl=1",
 ]
 
 download_dir = os.path.pardir + "/experiments/pretrained_models/srcnn"
