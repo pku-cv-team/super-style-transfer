@@ -71,6 +71,12 @@ class JsonLoader:
                 "content_layers": feature_extractor_param.get("content_layers"),
                 "style_layers": feature_extractor_param.get("style_layers"),
             }
+        if feature_extractor_type == "resnet50":
+            return {
+                "type": feature_extractor_type,
+                "content_layers": feature_extractor_param.get("content_layers"),
+                "style_layers": feature_extractor_param.get("style_layers"),
+            }
         raise ValueError("Unsupported feature extractor type.")
 
     @my_not_none
