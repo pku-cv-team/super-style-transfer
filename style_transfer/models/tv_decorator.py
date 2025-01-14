@@ -1,6 +1,5 @@
 """全变分损失修饰器"""
 
-from typing import override
 import torch
 from style_transfer.models.neural_style_transfer_decorator import (
     NeuralStyleTransferDecorator,
@@ -16,7 +15,6 @@ class TvDecorator(NeuralStyleTransferDecorator):
         self.__tv_weight = kwargs.get("tv_weight", 1)
         super().__init__(model)
 
-    @override
     def _compute_all_loss(self, stylized_image: torch.Tensor) -> torch.Tensor:
         """前向传播
 

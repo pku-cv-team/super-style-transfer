@@ -1,7 +1,7 @@
 """Laplacian风格迁移模型"""
 
 from functools import cached_property
-from typing import List, override
+from typing import List
 import torch
 from torch.nn import functional as F
 from style_transfer.models.neural_style_transfer_decorator import (
@@ -22,7 +22,6 @@ class LapstyleTransferModel(NeuralStyleTransferDecorator):
         self.__lap_weight = kwargs.get("lap_weight", 1e4)
         super().__init__(model)
 
-    @override
     def _compute_all_loss(self, stylized_image: torch.Tensor) -> torch.Tensor:
         """前向传播
 

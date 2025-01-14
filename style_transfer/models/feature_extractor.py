@@ -1,7 +1,7 @@
 """特征提取器模块"""
 
 from abc import ABC, abstractmethod
-from typing import List, Tuple, override
+from typing import List, Tuple
 import torch
 from torch import nn
 import torchvision.models
@@ -61,7 +61,6 @@ class VGGFeatureExtractor(FeatureExtractor):
         self.__content_layers = content_layers
         self.__style_layers = style_layers
 
-    @override
     def to(self, device: torch.device) -> "VGGFeatureExtractor":
         """将特征提取器移动到指定设备
 
@@ -74,7 +73,6 @@ class VGGFeatureExtractor(FeatureExtractor):
         self.__vgg19.to(device)
         return self
 
-    @override
     def extract_features(
         self, image_tensor: torch.Tensor
     ) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:

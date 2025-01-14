@@ -1,6 +1,6 @@
 """图像调整器"""
 
-from typing import Tuple, Callable, override
+from typing import Tuple, Callable
 from abc import ABC, abstractmethod
 import torch
 from torch import nn
@@ -159,13 +159,11 @@ class TrivialResizer(ImageResizer):
 
     __original_size: Tuple[int, int]
 
-    @override
     def resize_to(self, img_tensor: torch.Tensor) -> torch.Tensor:
         """调整图像张量尺寸"""
         self.__original_size = img_tensor.shape[-2:]
         return resize_img_tensor(img_tensor, self._size)
 
-    @override
     def restore_from(self, img_tensor: torch.Tensor) -> torch.Tensor:
         """恢复原来的尺寸"""
         if self.__original_size is None:
@@ -178,13 +176,11 @@ class PyramidResizer(ImageResizer):
 
     __restore_func: Callable[[torch.Tensor], torch.Tensor]
 
-    @override
     def resize_to(self, img_tensor: torch.Tensor) -> torch.Tensor:
         """调整图像张量尺寸"""
         result, self.__restore_func = scale_img_tensor(img_tensor, self._size)
         return result
 
-    @override
     def restore_from(self, img_tensor: torch.Tensor) -> torch.Tensor:
         """恢复原来的尺寸"""
         return self.__restore_func(img_tensor)
@@ -211,12 +207,10 @@ class SrcnnResizer(ImageResizer):
         self.__scale = scale
         super().__init__(size)
 
-    @override
     def resize_to(self, img_tensor: torch.Tensor) -> torch.Tensor:
         self.__original_size = img_tensor.shape[-2:]
         return resize_img_tensor(img_tensor, self._size)
 
-    @override
     def restore_from(self, img_tensor):
         if self.__original_size is None:
             raise ValueError("original_size is not set")

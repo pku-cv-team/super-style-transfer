@@ -1,7 +1,7 @@
 """Gatys风格迁移模型"""
 
 from functools import cached_property
-from typing import List, override
+from typing import List
 import torch
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.feature_extractor import FeatureExtractor
@@ -54,7 +54,6 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         self._content_image = content_image
         self._style_images = style_images
 
-    @override
     def to(
         self,
         device: torch.device,
@@ -64,7 +63,6 @@ class GatysStyleTransferModel(NeuralStyleTransferModel):
         self.__feature_extractor = self.__feature_extractor.to(device)
         return self
 
-    @override
     def _compute_all_loss(self, stylized_image: torch.Tensor) -> torch.Tensor:
         """前向传播
 
