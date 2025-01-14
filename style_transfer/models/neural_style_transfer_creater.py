@@ -1,6 +1,6 @@
 """风格迁移模型创建器"""
 
-from typing import Callable
+from typing import Callable, List
 import torch
 from style_transfer.models.neural_style_transfer import NeuralStyleTransferModel
 from style_transfer.models.gatys import GatysStyleTransferModel
@@ -11,19 +11,19 @@ from style_transfer.models.feature_extractor import feature_extractor_creater
 
 def create_style_transfer_model(
     model_param: dict,
-) -> Callable[[torch.Tensor, torch.Tensor], NeuralStyleTransferModel]:
+) -> Callable[[torch.Tensor, List[torch.Tensor]], NeuralStyleTransferModel]:
     """创建风格迁移模型"""
     feature_extractor = feature_extractor_creater(model_param.pop("feature_extractor"))
     decorator_param = model_param.pop("decorator", [])
     if model_param["type"] == "gatys":
 
         def model_creator(
-            content_image: torch.Tensor, style_image: torch.Tensor
+            content_image: torch.Tensor, style_images: List[torch.Tensor]
         ) -> NeuralStyleTransferModel:
             model = GatysStyleTransferModel(
                 feature_extractor=feature_extractor,
                 content_image=content_image,
-                style_image=style_image,
+                style_images=style_images,
                 **model_param,
             )
             for param in decorator_param:

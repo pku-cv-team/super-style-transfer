@@ -67,7 +67,7 @@ def scale_img_numpy(
 
     if len(gaussian_pyramid) <= 1:
         return cv2.resize(image_numpy, size), lambda x: cv2.resize(
-            x, image_numpy.shape[0:2]
+            x, (image_numpy.shape[1], image_numpy.shape[0])
         )
     gaussian_pyramid.pop()
 
@@ -76,8 +76,9 @@ def scale_img_numpy(
     for i in range(len(gaussian_pyramid) - 1, 0, -1):
         expand = cv2.pyrUp(gaussian_pyramid[i])
         if expand.shape[0:2] != gaussian_pyramid[i - 1].shape[0:2]:
-            expand = cv2.resize(expand, gaussian_pyramid[i - 1].shape[0:2]).transpose(
-                1, 0, 2
+            expand = cv2.resize(
+                expand,
+                (gaussian_pyramid[i - 1].shape[1], gaussian_pyramid[i - 1].shape[0]),
             )
         laplacian = cv2.subtract(gaussian_pyramid[i - 1], expand)
         laplacian_pyramid.append(laplacian)
@@ -90,19 +91,20 @@ def scale_img_numpy(
         # ).transpose(1, 0, 2)
         if gaussian_pyramid[-1].shape[0:2] != processed_image_numpy.shape[0:2]:
             processed_image_numpy = cv2.resize(
-                processed_image_numpy, gaussian_pyramid[-1].shape[0:2]
-            ).transpose(1, 0, 2)
+                processed_image_numpy,
+                (gaussian_pyramid[-1].shape[1], gaussian_pyramid[-1].shape[0]),
+            )
         for laplacian in laplacian_pyramid:
             processed_image_numpy = cv2.pyrUp(processed_image_numpy)
             if processed_image_numpy.shape[0:2] != laplacian.shape[0:2]:
                 processed_image_numpy = cv2.resize(
-                    processed_image_numpy, laplacian.shape[0:2]
-                ).transpose(1, 0, 2)
+                    processed_image_numpy, (laplacian.shape[1], laplacian.shape[0])
+                )
             processed_image_numpy = cv2.add(processed_image_numpy, laplacian)
         return processed_image_numpy
 
     if gaussian_pyramid[-1].shape[0:2] != size:
-        image_numpy = cv2.resize(gaussian_pyramid[-1], size).transpose(1, 0, 2)
+        image_numpy = cv2.resize(gaussian_pyramid[-1], (size[1], size[0]))
     else:
         image_numpy = gaussian_pyramid[-1]
 
@@ -125,9 +127,12 @@ def scale_img_tensor(
     image_numpy = image_tensor.numpy().transpose(1, 2, 0)
     image_numpy, restore_size = scale_img_numpy(image_numpy, size)
     image_tensor = torch.from_numpy(image_numpy.transpose(2, 0, 1))
-    return image_tensor, lambda x: torch.from_numpy(
-        restore_size(x.numpy().transpose(1, 2, 0))
-    ).permute(2, 0, 1)
+    return (
+        image_tensor.contiguous(),
+        lambda x: torch.from_numpy(restore_size(x.numpy().transpose(1, 2, 0)))
+        .permute(2, 0, 1)
+        .contiguous(),
+    )
 
 
 class ImageResizer(ABC):

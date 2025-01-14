@@ -96,11 +96,71 @@ class VGGFeatureExtractor(FeatureExtractor):
             if i in self.__style_layers:
                 # 论文中事实上还应该除以2,但考虑到我们还要对损失加权，所以这里略去
                 # 乘以original_size是为了防止梯度消失，也便于调整权重
-                style_features.append(
-                    # compute_gama_matrix(x) * original_size / x.numel()
-                    compute_gama_matrix(x)
-                    / x.numel()
-                )
+                style_features.append(compute_gama_matrix(x) / x.numel())
+        return content_features, style_features
+
+
+class ResNetFeatureExtractor(FeatureExtractor):
+    """使用 ResNet 网络提取特征"""
+
+    def __init__(
+        self, content_layers: List[str] = None, style_layers: List[str] = None
+    ):
+        super().__init__()
+        # 加载预训练的 ResNet50 并冻结权重
+        self.__resnet50 = torchvision.models.resnet50(
+            weights=torchvision.models.ResNet50_Weights.DEFAULT
+        ).eval()
+        for param in self.__resnet50.parameters():
+            param.requires_grad = False
+
+        # 获取 ResNet 的所有中间层
+        self.layers = nn.ModuleDict(
+            {
+                "conv1": self.__resnet50.conv1,
+                "bn1": self.__resnet50.bn1,
+                "relu": self.__resnet50.relu,
+                "maxpool": self.__resnet50.maxpool,
+                "layer1": self.__resnet50.layer1,
+                "layer2": self.__resnet50.layer2,
+                "layer3": self.__resnet50.layer3,
+                "layer4": self.__resnet50.layer4,
+            }
+        )
+
+        # 设置默认的内容层和风格层
+        if content_layers is None:
+            content_layers = ["layer4"]  # 通常从更深的层提取内容特征
+        if style_layers is None:
+            style_layers = [
+                "conv1",
+                "layer1",
+                "layer2",
+                "layer3",
+            ]  # 风格特征来自不同深度的层
+
+        self.__content_layers = content_layers
+        self.__style_layers = style_layers
+
+    def to(self, device: torch.device) -> "ResNetFeatureExtractor":
+        """将特征提取器移动到指定设备"""
+        self.__resnet50.to(device)
+        return self
+
+    def extract_features(
+        self, image_tensor: torch.Tensor
+    ) -> Tuple[List[torch.Tensor], List[torch.Tensor]]:
+        """提取内容特征和风格特征"""
+        content_features, style_features = [], []
+        x = image_tensor
+
+        for name, layer in self.layers.items():
+            x = layer(x)
+            if name in self.__content_layers:
+                content_features.append(x)
+            if name in self.__style_layers:
+                style_features.append(compute_gama_matrix(x) / x.numel())
+
         return content_features, style_features
 
 
@@ -108,6 +168,11 @@ def feature_extractor_creater(feature_extractor_param: dict) -> FeatureExtractor
     """特征提取器创建器"""
     if feature_extractor_param["type"] == "vgg19":
         return VGGFeatureExtractor(
+            feature_extractor_param.get("content_layers"),
+            feature_extractor_param.get("style_layers"),
+        )
+    if feature_extractor_param["type"] == "resnet50":
+        return ResNetFeatureExtractor(
             feature_extractor_param.get("content_layers"),
             feature_extractor_param.get("style_layers"),
         )

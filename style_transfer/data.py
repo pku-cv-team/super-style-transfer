@@ -9,6 +9,18 @@ from PIL import Image
 from style_transfer.utils.func_utils import my_check_return_type
 
 
+def read_img_to_pixel(path: str) -> Image:
+    """读取图像文件并转换为像素数组
+
+    Args:
+        path (str): 图像文件路径
+
+    Returns:
+        Image: PIL图像
+    """
+    return Image.open(path).convert("RGB")
+
+
 @my_check_return_type(torch.Tensor)
 def read_img_to_tensor(path: str) -> torch.Tensor:
     """读取图像文件并转换为模型输入的张量
@@ -19,13 +31,12 @@ def read_img_to_tensor(path: str) -> torch.Tensor:
     Returns:
         torch.Tensor: 模型输入张量
     """
-    image: Image = Image.open(path).convert("RGB")
     transform = transforms.Compose(
         [
             transforms.ToTensor(),
         ]
     )
-    return transform(image)
+    return transform(read_img_to_pixel(path))
 
 
 @my_check_return_type(torch.Tensor)

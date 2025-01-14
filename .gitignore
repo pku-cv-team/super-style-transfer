@@ -181,3 +181,8 @@ cython_debug/
 !data/raw/style/picasso.jpg
 !data/raw/content/cambridge.jpg
 !data/raw/style/starry_night.jpg
+
+data/coco/*
+!data/coco/.gitkeep
+
+*.pth
