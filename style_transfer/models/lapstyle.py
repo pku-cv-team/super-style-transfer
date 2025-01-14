@@ -13,11 +13,13 @@ class LapstyleTransferModel(NeuralStyleTransferDecorator):
     """Laplacian风格迁移模型"""
 
     __pool_size: List[int]
-    __lap_weight: List[float]
+    __pool_weight: List[float]
+    __lap_weight: float
 
     def __init__(self, model: NeuralStyleTransferDecorator, **kwargs):
-        self.__pool_size = kwargs.get("pool_size")
-        self.__lap_weight = kwargs.get("lap_weight")
+        self.__pool_size = kwargs.get("pool_size", [3, 5, 7])
+        self.__pool_weight = kwargs.get("pool_size", [1.0] * len(self.__pool_size))
+        self.__lap_weight = kwargs.get("lap_weight", 1e4)
         super().__init__(model)
 
     @override
@@ -31,8 +33,11 @@ class LapstyleTransferModel(NeuralStyleTransferDecorator):
         lap_features = self.__compute_laplacian_feature(
             self._model.generated_image, self.__pool_size
         )
-        lap_loss = self._compute_loss(
-            self.cached_lap_features, lap_features, weight_list=self.__lap_weight
+        lap_loss = (
+            self._compute_loss(
+                self.cached_lap_features, lap_features, weight_list=self.__pool_weight
+            )
+            * self.__lap_weight
         )
         return content_and_style_loss_with_weight + lap_loss
 

@@ -1,5 +1,5 @@
 {
-  "content_image": "data/raw/content/kid.png",
+  "content_image": "data/raw/content/girlmrf.jpg",
   "style_image": "data/raw/style/draw.jpg",
   "model_config": {
     "type": "gatys",
@@ -10,13 +10,14 @@
     },
     "content_layer_weights": [1.0],
     "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
-    "content_weight": 1e-4,
-    "style_weight": 3e9,
+    "content_weight": 4,
+    "style_weight": 3e12,
     "additional_loss": [
       {
         "type": "lap_loss",
-        "lap_weight": [3e6, 1e6],
-        "pool_size": [2, 4]
+        "lap_weight": 1e9,
+        "pool_size": [2, 4],
+        "pool_weight": [0.75, 0.25]
       }
     ],
     "init_strategy": "content"
@@ -26,7 +27,7 @@
     "size": [300, 300]
   },
   "learning_rate": 0.2,
-  "iterations": 1000,
+  "iterations": 500,
   "device": "cuda",
   "optimizer": "LBFGS",
   "output_image": "experiments/results/gatys/01.jpg"

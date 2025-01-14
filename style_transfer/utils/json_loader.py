@@ -123,7 +123,8 @@ class JsonLoader:
             return {
                 "type": decorator_type,
                 "pool_size": JsonLoader.__load_to_list(json_obj, "pool_size"),
-                "lap_weight": JsonLoader.__load_to_list(json_obj, "lap_weight"),
+                "pool_weight": JsonLoader.__load_to_list(json_obj, "pool_weight"),
+                "lap_weight": json_obj.get("lap_weight", 1e4),
             }
         if decorator_type == "tv_loss":
             return {

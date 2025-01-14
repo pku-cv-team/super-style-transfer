@@ -74,6 +74,10 @@ def main():
     content_image = content_image_resizer.resize_to(content_image)
     style_images = [style_image_resizer.resize_to(img) for img in style_images]
 
+    save_img_from_tensor(content_image, "data/processed/content_image.jpg")
+    for i, img in enumerate(style_images):
+        save_img_from_tensor(img, f"data/processed/style_image_{i}.jpg")
+
     # 图像处理
     content_image = normalize_img_tensor(content_image).unsqueeze(0)
     style_images = [normalize_img_tensor(img).unsqueeze(0) for img in style_images]
