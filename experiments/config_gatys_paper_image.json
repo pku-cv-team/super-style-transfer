@@ -1,0 +1,28 @@
+{
+  "content_image": "data/raw/content/gatys.jpg",
+  "style_image": "data/raw/style/starry_night.jpg",
+  "model_config": {
+    "type": "gatys",
+    "feature_extractor": {
+      "type": "vgg19",
+      "content_layers": [22],
+      "style_layers": [1, 6, 11, 20, 29]
+    },
+    "content_layer_weights": [1.0],
+    "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
+    "content_weight": 1e-2,
+    "style_weight": 1e6,
+    "init_strategy": "content"
+  },
+  "resize_stragety": {
+    "type": "srcnn",
+    "size": [400, 300],
+    "model_path": "experiments/pretrained_models/srcnn/srcnn_x3.pth",
+    "scale": 3
+  },
+  "learning_rate": 0.5,
+  "iterations": 500,
+  "device": "cuda",
+  "optimizer": "LBFGS",
+  "output_image": "experiments/results/gatys/01.jpg"
+}
