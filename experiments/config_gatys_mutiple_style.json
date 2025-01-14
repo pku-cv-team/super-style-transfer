@@ -1,6 +1,6 @@
 {
-  "content_image": "data/raw/content/cambridge.jpg",
-  "style_images": ["data/raw/style/starry_night.jpg", "data/raw/style/picasso.jpg"],
+  "content_image": "data/raw/content/building.png",
+  "style_image": ["data/raw/style/starry_night.jpg", "data/raw/style/Edvard_Munch_-_The_Scream_-_Google_Art_Project.jpg"],
   "model_config": {
     "type": "gatys",
     "feature_extractor": {
@@ -11,7 +11,7 @@
     "content_layer_weights": [1.0],
     "style_layer_weights": [0.2, 0.2, 0.2, 0.2, 0.2],
     "content_weight": 1e3,
-    "style_weight": [3e10, 3e10],
+    "style_weight": [4e9, 2e9],
     "additional_loss": [
       {
         "type": "tv_loss",
@@ -26,10 +26,8 @@
     "init_strategy": "content"
   },
   "resize_stragety": {
-    "type": "srcnn",
-    "size": [300, 300],
-    "model_path": "experiments/pretrained_models/srcnn_x3.pth",
-    "scale": 3
+    "type": "trivial",
+    "size": [300, 300]
   },
   "learning_rate": 0.2,
   "iterations": 500,

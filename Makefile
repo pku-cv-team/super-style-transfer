@@ -23,4 +23,4 @@ fast:
 	python style_transfer/fast_train.py --config experiments/config_fast.json
 
 stylize:
-	python style_transfer/fast_stylize.py --input data/content/cambridge.jpg --output experiments/results/fast_neural_style/01.jpg --model experiments/models/model.pth
+	python style_transfer/fast_stylize.py --input data/raw/content/cambridge.jpg --output experiments/results/fast_neural_style/01.jpg --model experiments/models/model.pth

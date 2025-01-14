@@ -28,7 +28,7 @@
   "resize_stragety": {
     "type": "srcnn",
     "size": [300, 300],
-    "model_path": "experiments/pretrained_models/srcnn_x3.pth",
+    "model_path": "experiments/pretrained_models/srcnn/srcnn_x3.pth",
     "scale": 3
   },
   "learning_rate": 0.2,
