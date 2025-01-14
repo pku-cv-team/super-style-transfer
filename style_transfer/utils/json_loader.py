@@ -25,6 +25,10 @@ class JsonLoader:
         """加载json文件中的key对应的值，如果为None则抛出异常"""
         return self.load(key)
 
+    def load_to_list(self, key: str) -> List:
+        """加载key对应的值到列表"""
+        return self.__load_to_list(self.__json_obj, key)
+
     @my_not_none
     def load_resize_stragety(self) -> dict:
         """加载调整图像尺寸的策略"""
@@ -80,7 +84,9 @@ class JsonLoader:
             return {
                 "type": style_transfer_type,
                 "content_weight": style_transfer_param.get("content_weight", 1.0),
-                "style_weight": style_transfer_param.get("style_weight", 1e4),
+                "style_weight": self.__load_to_list(
+                    style_transfer_param, "style_weight"
+                ),
                 "feature_extractor": self.__load_feature_extractor_param(
                     style_transfer_param
                 ),
@@ -119,3 +125,11 @@ class JsonLoader:
                 "tv_weight": json_obj.get("tv_weight", 1e-2),
             }
         raise ValueError("Unsupported decorator type.")
+
+    @staticmethod
+    def __load_to_list(json_obj: json, key: str) -> dict:
+        """加载key对应的值到列表"""
+        value = json_obj.get(key)
+        if isinstance(value, list):
+            return value
+        return [value]

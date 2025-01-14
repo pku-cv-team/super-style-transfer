@@ -61,7 +61,9 @@ def main():
 
     # 加载图片
     content_image = read_img_to_tensor(json_loader.load("content_image"))
-    style_image = read_img_to_tensor(json_loader.load("style_image"))
+    style_images = [
+        read_img_to_tensor(path) for path in json_loader.load_to_list("style_image")
+    ]
 
     # 加载图像大小调整器
     resize_stragety: dict = json_loader.load_resize_stragety()
@@ -70,18 +72,18 @@ def main():
 
     # 调整图像大小
     content_image = content_image_resizer.resize_to(content_image)
-    style_image = style_image_resizer.resize_to(style_image)
+    style_images = [style_image_resizer.resize_to(img) for img in style_images]
 
     # 图像处理
-    content_image, style_image = normalize_img_tensor(content_image).unsqueeze(
-        0
-    ), normalize_img_tensor(style_image).unsqueeze(0)
+    content_image = normalize_img_tensor(content_image).unsqueeze(0)
+    style_images = [normalize_img_tensor(img).unsqueeze(0) for img in style_images]
     content_image.requires_grad = False
-    style_image.requires_grad = False
+    for img in style_images:
+        img.requires_grad = False
 
     transfer_model = create_style_transfer_model(
         json_loader.load_style_transfer_param()
-    )(content_image, style_image)
+    )(content_image, style_images)
     iterations: int = json_loader.load("iterations")
     learning_rate: float = json_loader.load("learning_rate")
     device = torch.device(
