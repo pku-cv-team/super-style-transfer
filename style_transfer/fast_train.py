@@ -94,7 +94,7 @@ def main():
     loss_net = LossNet(
         lambda content_image: create_style_transfer_model(
             json_loader.load_style_transfer_param()
-        )(content_image, style_image)
+        )(content_image, [style_image])
     )
     transfer_net = TransferNet()
     # 优化器构建(?使用AdamW?还是其它优化器呢)
