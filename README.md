@@ -22,15 +22,6 @@ conda activate style_transfer
 conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
 ```
 
-> [!NOTE] 环境搭建有困难？
-> 可以使用我们打包的 Docker 镜像，使用命令
->
-> ```bash
-> docker pull
-> ```
->
-> 拉取镜像。
-
 ## 具体使用
 
 ### Gatys 风格迁移
@@ -202,3 +193,10 @@ pytest
 ### 训练
 
 为了训练的方便，我们将所有的相关代码整理到了笔记本[fast_neural_style.ipynb](./fast_neural_style.ipynb)，可以在这里训练。
+
+## Contributors
+This project was completed as part of a course assignment by the following team members:
+
+- yibotongxue
+- Miakasa
+- yangyang905
